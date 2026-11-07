@@ -1,0 +1,17 @@
+# Godot
+.godot/
+/android/
+*.translation
+export_presets.cfg
+*.tmp
+
+# Godot 匯出產物
+/build/
+/export/
+
+# IDE / 編輯器
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db

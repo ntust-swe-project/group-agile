@@ -1,0 +1,13 @@
+# <type>(<scope>): <subject>   # 72 字元以內，英文祈使句，句尾不加句號
+#
+# * 做了什麼，一條一件事
+# * 為什麼這樣改（推翻先前決定時必填）
+#
+# footer（選用）：
+#   BREAKING CHANGE: 修改 VISION.md 時填，附三組同意的紀錄
+#   Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+#
+# type:  feat fix docs refactor test chore build
+# scope: vision req uml meeting ai-log repo / 程式碼 scope 各組自訂
+#
+# 規則見 docs/COMMIT_CONVENTION.md
