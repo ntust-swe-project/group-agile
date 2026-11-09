@@ -62,6 +62,9 @@ Every task follows: **Question -> Options -> Decision -> Draft -> Approval**
 
 See `docs/COLLABORATIVE-DESIGN-PRINCIPLE.md` for full protocol and examples.
 
+**AI usage logging:** every contributor follows `docs/ai-log/AI_LOGGING_RULES.md`
+(course requirement; record each AI-assisted session there).
+
 > **First session?** If the project has no engine configured and no game concept,
 > run `/start` to begin the guided onboarding flow.
 

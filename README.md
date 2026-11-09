@@ -24,6 +24,46 @@
 
 ## 開始前
 
+### 需要的工具
+
+| 工具 | 版本 / 說明 |
+| --- | --- |
+| [Godot](https://github.com/godotengine/godot/releases/tag/4.7.2-stable) | **4.7.2 stable，standard 版**（`Godot_v4.7.2-stable_win64.exe.zip`，不是 mono / .NET 版）。三組一致，見 `common/docs/VISION.md` 第 10 節。**請解壓到 `C:\tools\godot\`**：`project.yaml` 的 `commands.*` 用這個路徑 |
+| [Git for Windows](https://gitforwindows.org/) | 附 Git Bash；CCGS 的 hooks 與 scripts 用 bash 執行 |
+| [Python 3](https://www.python.org/downloads/) | CCGS 部分 hooks / scripts 需要 |
+
+### Clone
+
+`common/` 是 [`project-common`](https://github.com/ntust-swe-project/project-common) 的 git submodule，clone 時要一起拉：
+
+```bash
+git clone --recurse-submodules https://github.com/ntust-swe-project/group-agile.git
+```
+
+已經 clone 過但 `common/` 是空的：
+
+```bash
+git submodule update --init
+```
+
+### 設定 commit 範本
+
 ```bash
 git config commit.template .gitmessage
 ```
+
+### 跑測試
+
+測試用 gdUnit4 6.2.2（已放在 `addons/gdUnit4/`），在 repo 根目錄用 Git Bash 執行：
+
+```bash
+G=/c/tools/godot/Godot_v4.7.2-stable_win64_console.exe
+"$G" --headless --path . --import
+"$G" --headless -s -d --remote-debug tcp://127.0.0.1:0 res://addons/gdUnit4/bin/GdUnitCmdTool.gd -a res://tests --ignoreHeadlessMode
+```
+
+結束碼 0 代表全部通過。詳見 [`tests/README.md`](tests/README.md)。
+
+## 專案結構
+
+本 repo 使用 [Claude Code Game Studios](https://github.com/Donchitos/Claude-Code-Game-Studios) v1.2.0（`.claude/`、`CLAUDE.md`、`project.yaml`），授權見 `.claude/LICENSE-CCGS`。第一次用 Claude Code 開啟本 repo 時可執行 `/help` 看下一步。
