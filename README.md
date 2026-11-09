@@ -28,9 +28,19 @@
 
 | 工具 | 版本 / 說明 |
 | --- | --- |
-| [Godot](https://github.com/godotengine/godot/releases/tag/4.7.2-stable) | **4.7.2 stable，standard 版**（`Godot_v4.7.2-stable_win64.exe.zip`，不是 mono / .NET 版）。三組一致，見 `common/docs/VISION.md` 第 10 節。**請解壓到 `C:\tools\godot\`**：`project.yaml` 的 `commands.*` 用這個路徑 |
-| [Git for Windows](https://gitforwindows.org/) | 附 Git Bash；CCGS 的 hooks 與 scripts 用 bash 執行 |
+| [Godot](https://github.com/godotengine/godot/releases/tag/4.7.2-stable) | **4.7.2 stable，standard 版**（不是 mono / .NET 版）。三組一致，見 `common/docs/VISION.md` 第 10 節。裝在哪都可以，但要能用 `godot` 指令呼叫（見下節） |
+| Git（Windows 用 [Git for Windows](https://gitforwindows.org/)） | CCGS 的 hooks 與 scripts 用 bash 執行；Windows 用附帶的 Git Bash |
 | [Python 3](https://www.python.org/downloads/) | CCGS 部分 hooks / scripts 需要 |
+
+### 讓 `godot` 指令可以用
+
+`project.yaml` 的 `commands.*`（CCGS 跑測試、執行遊戲用）直接呼叫 `godot`，所以要把 Godot 加進 PATH：
+
+- **Windows**：解壓 `Godot_v4.7.2-stable_win64.exe.zip`，把 `Godot_v4.7.2-stable_win64_console.exe` 複製一份叫 `godot.exe`，再把那個資料夾加進使用者 PATH。只用 Git Bash 的話，也可以建一個 `~/bin/godot` 檔，內容是 `exec "/c/<你的路徑>/Godot_v4.7.2-stable_win64_console.exe" "$@"`
+- **macOS**：`ln -s /Applications/Godot.app/Contents/MacOS/Godot /usr/local/bin/godot`
+- **Linux**：解壓 `Godot_v4.7.2-stable_linux.x86_64.zip`，`ln -s <路徑>/Godot_v4.7.2-stable_linux.x86_64 ~/.local/bin/godot`
+
+確認：`godot --version` 要顯示 `4.7.2.stable.official.ed1daf0bf`。
 
 ### Clone
 
@@ -54,12 +64,11 @@ git config commit.template .gitmessage
 
 ### 跑測試
 
-測試用 gdUnit4 6.2.2（已放在 `addons/gdUnit4/`），在 repo 根目錄用 Git Bash 執行：
+測試用 gdUnit4 6.2.2（已放在 `addons/gdUnit4/`），在 repo 根目錄執行（Windows 用 Git Bash）：
 
 ```bash
-G=/c/tools/godot/Godot_v4.7.2-stable_win64_console.exe
-"$G" --headless --path . --import
-"$G" --headless -s -d --remote-debug tcp://127.0.0.1:0 res://addons/gdUnit4/bin/GdUnitCmdTool.gd -a res://tests --ignoreHeadlessMode
+godot --headless --path . --import
+godot --headless -s -d --remote-debug tcp://127.0.0.1:0 res://addons/gdUnit4/bin/GdUnitCmdTool.gd -a res://tests --ignoreHeadlessMode
 ```
 
 結束碼 0 代表全部通過。詳見 [`tests/README.md`](tests/README.md)。

@@ -42,8 +42,6 @@ engine:
   language: "GDScript"
   rendering: "Forward+"
   physics: "[TO BE CONFIGURED]"   # 2D vs 3D not decided yet: Godot Physics 2D for 2D, Jolt for 3D
-  # Team convention: unzip the official Godot 4.7.2 standard win64 build to C:/tools/godot/ (see README).
-  path: "C:/tools/godot/Godot_v4.7.2-stable_win64_console.exe"
 
 specialists:
   code: "godot-gdscript-specialist"
@@ -60,8 +58,9 @@ naming:
   scenes: snake_case
 
 commands:
+  # Plain `godot`: each developer makes Godot 4.7.2 callable as `godot` on PATH (README, any OS).
   # No export preset exists yet; set build via /settings once export_presets.cfg has one.
   build: "[TO BE CONFIGURED]"
-  test: '"C:/tools/godot/Godot_v4.7.2-stable_win64_console.exe" --headless -s -d --remote-debug tcp://127.0.0.1:0 res://addons/gdUnit4/bin/GdUnitCmdTool.gd -a res://tests --ignoreHeadlessMode'
-  run: '"C:/tools/godot/Godot_v4.7.2-stable_win64_console.exe" --path . --windowed --resolution 1920x1080'
-  smoke: '"C:/tools/godot/Godot_v4.7.2-stable_win64_console.exe" --headless --quit-after 5'
+  test: "godot --headless -s -d --remote-debug tcp://127.0.0.1:0 res://addons/gdUnit4/bin/GdUnitCmdTool.gd -a res://tests --ignoreHeadlessMode"
+  run: "godot --path . --windowed --resolution 1920x1080"
+  smoke: "godot --headless --quit-after 5"
