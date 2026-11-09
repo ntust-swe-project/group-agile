@@ -9,4 +9,4 @@
 
 | 生效日 | 主要工具與版本 | 主要模型 | 啟用的自動化 | 其他工具 |
 | --- | --- | --- | --- | --- |
-| 2026-11-__ | Claude Code(版本待填) | 待填 | CCGS(Claude-Code-Game-Studios,tag/commit 待填)的 hooks 與 slash commands | 待填 |
+| 2026-11-09 | eden2289:Claude Code 2.1.319 | Claude Sonnet 5.5(`claude-sonnet-5-5`) | 尚未啟用 CCGS;待 EJ 骨架完成後更新 | Godot 4.7.2.stable.official.ed1daf0bf(standard)、Python 3.14.5、git 2.55.0 |
