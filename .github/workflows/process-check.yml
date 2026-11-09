@@ -1,0 +1,29 @@
+name: Process Check
+
+# Checks every PR against docs/PROCESS.md: branch name, Closes #N, the PR
+# template's ai-log checkbox, commit message format, and that commits with an
+# AI footer come with an ai-log entry. The private repo has no branch
+# protection, so a red check does not block the merge button: do not merge red.
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  process-check:
+    name: process-check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Test the guard itself
+        run: python3 -m unittest discover -s .claude/team
+
+      - name: Check this PR
+        run: python3 .claude/team/team.py ci-check
