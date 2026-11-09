@@ -44,6 +44,8 @@
 ### 標記怎麼選(最容易混,務必分開)
 - `API`:AI 給的 Godot API 過時或不存在,對照 `docs.godotengine.org/en/4.7/` 驗證不到。這是版本雜訊。
 - `INV`:AI 自己加了 VISION 沒有的需求或機制(例如「忠誠度」)。這才是要比較的現象。
+  - 只算 **AI 提出**的;組員自己想到、VISION 沒有的東西不算 `INV`(那是 PO 要決定收不收的 story)。
+  - 被拒絕的也要記:結果填 `拒絕`、標記照樣填 `INV`。拒絕的 `INV` 正是報告要的證據。
 - `DUP`:AI 只是在重現《缺氧》等參考遊戲的設計。算 `INV` 的一種,但 VISION 第 2 節要求特別記錄。
 - 判斷不出來是 `API` 還是 `INV` 時:能對到 VISION 條文就不是 `INV`;查得到 4.7 文件就不是 `API`。
 - 驗證不到的 API 在理由裡加註 `unverified`。
@@ -62,8 +64,10 @@
 - 客戶訪談紀錄不寫在這裡(VISION 第 9 節第 4 點另存)。
 
 ## 6. 與 commit 的對應
-- 有 AI 協助的 commit,footer 加 `Co-Authored-By: <模型> <noreply@anthropic.com>`,格式依 `COMMIT_CONVENTION.md`。
-- 這是**交叉核對用**:角色 C 可用 `git log` 找出有 Co-Authored-By 但 ai-log 沒對應紀錄的 commit。
+- 有 AI 協助的 commit 要在 footer 揭露,格式依 `COMMIT_CONVENTION.md`:
+  - 用 Claude:`Co-Authored-By: <模型> <noreply@anthropic.com>`(這個 email 只適用 Claude)。
+  - 用其他 AI 工具:照 Linux kernel 寫法 `Assisted-by: <工具>:<模型>`,例 `Assisted-by: Copilot:gpt-5`。
+- 這是**交叉核對用**:角色 C 可用 `git log` 找出有 `Co-Authored-By` / `Assisted-by` 但 ai-log 沒對應紀錄的 commit。
 - 業界作法:Linux kernel 等開源專案用 `Assisted-by: 工具:模型` trailer 揭露 AI 協助,並明定 AI 不得自行加 `Signed-off-by`,責任由人負。我們沿用 project-common 的 `Co-Authored-By`,但同樣原則:**人對產出負責**。
 
 ## 7. 工具揭露(`README.md`)
