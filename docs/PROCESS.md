@@ -91,9 +91,15 @@ flowchart LR
 | `git push` | 推到 `main`、`--all`、`--mirror` |
 | `gh pr create` | 沒有 `Closes #N`；ai-log 勾選框沒勾；完成的定義檢查（`team.sh preflight`）有 FAIL |
 | `gh pr merge` | 沒有 `--merge`、用 squash/rebase/`--admin`/`--auto`；沒人 approve；CI 不是綠燈 |
-| 改 `.claude/team/`、`.claude/settings.json`、`process-check.yml` | 先問使用者（需 PO 同意，並告知角色 C） |
+| 改 `.claude/settings.json`、`.claude/hooks/`、`.claude/team/`、`.github/workflows/` | 先問使用者（需 PO 同意，並告知角色 C）；PR 需作者以外的組員 approve |
 
-GitHub Actions 的 `process-check` 會對每個 PR 再檢查一次（branch、`Closes #N`、範本勾選、commit 格式、AI footer 與 ai-log 是否對得上、是否改到別人的 log）。私有 repo 沒有分支保護，紅燈不會自動擋 merge，**紅燈就不要 merge**。
+GitHub Actions 的 `process-check` 會對每個 PR 再檢查一次（branch、`Closes #N`、範本勾選、commit 格式、AI footer 與 ai-log 是否對得上、是否改到別人的 log）。
+
+**權限不能偷偷放寬**：`process-check` 會跑 `.claude/team/test_permissions.py`，以下任一情況 CI 就會失敗：
+- `.claude/settings.json` 的 allow 超出 `.claude/team/permissions-baseline.json`、拿掉 deny、改 `defaultMode`、hook 跑 repo 外的指令
+- `team.py` 執行 allowlist 以外的動作（例如 push、merge、改別人的 assignee、PATCH/PUT GitHub）
+
+要放寬就得改 baseline 或測試，這些都屬於守門檔案（`.claude/settings.json`、`.claude/hooks/`、`.claude/team/`、`.github/workflows/`）。改到它們的 PR 需要**作者以外的組員 approve**，`process-check` 才會變綠燈。私有 repo 沒有分支保護，紅燈不會自動擋 merge，**紅燈就不要 merge**。
 
 ## 給 Claude 的規則（每個 session）
 

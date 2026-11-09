@@ -4,13 +4,20 @@ name: Process Check
 # template's ai-log checkbox, commit message format, and that commits with an
 # AI footer come with an ai-log entry. The private repo has no branch
 # protection, so a red check does not block the merge button: do not merge red.
+#
+# A PR that touches permissions or anything that runs automatically
+# (settings.json, .claude/hooks, .claude/team, workflows) also needs an
+# approval from someone other than its author; a review re-runs this check.
 on:
   pull_request:
     types: [opened, edited, synchronize, reopened]
     branches: [main]
+  pull_request_review:
+    types: [submitted, dismissed]
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
   process-check:
@@ -22,8 +29,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Test the guard itself
-        run: python3 -m unittest discover -s .claude/team
+      # Includes test_permissions.py: fails when settings.json grants more than
+      # permissions-baseline.json, or team.py runs anything off its allowlist.
+      - name: Test the guard and permission limits
+        run: python3 -m unittest discover -s .claude/team -v
 
       - name: Check this PR
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: python3 .claude/team/team.py ci-check

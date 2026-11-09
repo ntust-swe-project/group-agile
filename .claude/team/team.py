@@ -41,7 +41,10 @@ BLOCKED_LABEL = "blocked"
 TEST_CHECK = "Run GdUnit4 Tests"
 PROCESS_CHECK = "process-check"
 AI_LOG_DIR = "docs/ai-log"
-GUARD_FILES = (".claude/team/", ".claude/settings.json", ".github/workflows/process-check.yml")
+# Files that decide what Claude may do without asking or what runs automatically.
+# Claude asks before editing them; a PR that changes them needs an approval from
+# someone other than its author before process-check goes green.
+GUARD_FILES = (".claude/team/", ".claude/settings.json", ".claude/hooks/", ".github/workflows/")
 TAG = "【團隊流程】"
 
 PASS, FAIL, NA = "PASS", "FAIL", "NOT ASSESSED"
@@ -190,9 +193,11 @@ def pr_state(pr):
     approved = sorted(u for u, s in latest.items() if s == "APPROVED")
     changes = sorted(u for u, s in latest.items() if s == "CHANGES_REQUESTED")
     runs = gh_api("repos/%s/commits/%s/check-runs?per_page=100" % (repo, pr["head"]["sha"]))["check_runs"]
-    checks = {}
-    for c in runs:
-        checks[c["name"]] = c["conclusion"] or c["status"]
+    checks, newest = {}, {}
+    for c in runs:  # a check re-runs on review events: keep the newest run per name
+        if c["id"] > newest.get(c["name"], -1):
+            newest[c["name"]] = c["id"]
+            checks[c["name"]] = c["conclusion"] or c["status"]
     return {"approved": approved, "changes": changes, "checks": checks}
 
 
@@ -960,6 +965,21 @@ def cmd_ci_check(args):
             res.append((FAIL, "ai-log", "%s 還有 `TODO(人填)`" % log))
         else:
             res.append((PASS, "ai-log", log))
+    guarded = sorted(f for f in files if any(f == g or f.startswith(g) for g in GUARD_FILES))
+    if guarded:
+        try:
+            reviews = gh_api("repos/%s/pulls/%d/reviews?per_page=100" % (repo_slug(), pr["number"])) or []
+            latest = {}
+            for r in reviews:
+                if r["user"]["login"] != author and r["state"] in ("APPROVED", "CHANGES_REQUESTED", "DISMISSED"):
+                    latest[r["user"]["login"]] = r["state"]
+            ok = [u for u, st in latest.items() if st == "APPROVED"]
+            if ok:
+                res.append((PASS, "守門檔案", "改到 %s，已由 %s approve" % ("、".join(guarded), "、".join(sorted(ok)))))
+            else:
+                res.append((FAIL, "守門檔案", "改到權限或自動執行的設定（%s），需要作者以外的組員 approve 後重跑" % "、".join(guarded)))
+        except GhError as e:
+            res.append((FAIL, "守門檔案", "改到 %s，但無法確認 review（%s）" % ("、".join(guarded), e)))
     lines = ["## 團隊流程檢查（docs/PROCESS.md）", "", "| 結果 | 項目 | 說明 |", "| --- | --- | --- |"]
     for s, name, d in res:
         lines.append("| %s | %s | %s |" % ({"PASS": "✅", "FAIL": "❌"}.get(s, "⚠️"), name, d.replace("|", "\\|")))
