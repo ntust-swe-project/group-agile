@@ -254,7 +254,9 @@ class Runtime(unittest.TestCase):
     def setUp(self):
         self.world = FakeWorld()
         team._cache.clear()
-        patches = [mock.patch.object(team, "run", self.world.run),
+        env = {k: v for k, v in os.environ.items() if k != "GITHUB_REPOSITORY"}  # CI sets it
+        patches = [mock.patch.dict(os.environ, env, clear=True),
+                   mock.patch.object(team, "run", self.world.run),
                    mock.patch.object(team, "out", lambda *a, **k: None),
                    mock.patch.object(team, "err", lambda *a, **k: None)]
         for p in patches:
