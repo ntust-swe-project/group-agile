@@ -1,0 +1,31 @@
+; Godot 專案骨架 — 三組共用。
+;
+; 用法：複製到各組 repo 的根目錄，然後加上各組自訂的兩行：
+;     [application]
+;     config/name="group-xxx"
+;     run/main_scene="res://..."
+;
+; 本檔只含 VISION.md 第 10 節限定的共用三類：版本 / renderer / 解析度。
+; 不共用：script、scene、autoload、input map、layer 名稱、美術 —
+; 各組自行新增，不回頭同步。
+;
+; 引擎釘在 Godot 4.7.2 stable（standard 版、GDScript、Forward+）。
+
+config_version=5
+
+[application]
+
+config/name="group-agile"
+config/features=PackedStringArray("4.7", "Forward Plus")
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/stretch/mode="canvas_items"
+window/stretch/aspect="keep"
+
+[rendering]
+
+renderer/rendering_method="forward_plus"
+rendering_device/driver.windows="vulkan"
