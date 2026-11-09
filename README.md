@@ -64,6 +64,14 @@ G=/c/tools/godot/Godot_v4.7.2-stable_win64_console.exe
 
 結束碼 0 代表全部通過。詳見 [`tests/README.md`](tests/README.md)。
 
+## main 的規則
+
+私有 repo 在 GitHub 免費方案下無法開分支保護，所以先靠團隊約定：
+
+- 不直接 push `main`
+- PR 要 1 人 review、CI `Run GdUnit4 Tests` 綠燈才 merge
+- 用 merge commit，不 squash
+
 ## 專案結構
 
 本 repo 使用 [Claude Code Game Studios](https://github.com/Donchitos/Claude-Code-Game-Studios) v1.2.0（`.claude/`、`CLAUDE.md`、`project.yaml`），授權見 `.claude/LICENSE-CCGS`。第一次用 Claude Code 開啟本 repo 時可執行 `/help` 看下一步。
