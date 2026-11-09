@@ -71,7 +71,7 @@ godot --headless --path . --import
 godot --headless -s -d --remote-debug tcp://127.0.0.1:0 res://addons/gdUnit4/bin/GdUnitCmdTool.gd -a res://tests --ignoreHeadlessMode
 ```
 
-結束碼 0 代表全部通過。詳見 [`tests/README.md`](tests/README.md)。
+結束碼 0 代表全部通過。執行時會印出幾行 `ERROR:`（`The remote port number must be between 1 and 65535`、`Remote Debugger: Unable to connect to host '127.0.0.1:0'`），這是 `--remote-debug tcp://127.0.0.1:0` 造成的，屬正常現象，不影響測試結果。詳見 [`tests/README.md`](tests/README.md)。
 
 ## main 的規則
 

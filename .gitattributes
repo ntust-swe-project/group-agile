@@ -27,3 +27,8 @@
 # .gitattributes governs the INDEX. It does not retro-fix a working tree that
 # predates the rule -- run `git add --renormalize .` for that.
 .claude/**/*.md text eol=lf
+
+# Godot writes these with LF. Without this, core.autocrlf=true users see them
+# as modified after every `godot --import`, though only line endings differ.
+*.import text eol=lf
+.godot/global_script_class_cache.cfg text eol=lf
