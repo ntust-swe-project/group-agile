@@ -2,7 +2,7 @@
 name: claim-story
 description: "Claims a story for the user: checks the one-card WIP limit and PO order, assigns the GitHub issue, and creates the feat/<issue>-<name> branch from the latest main. Use when the user wants to start a story, take the next card, or pick up issue #N. Run before /dev-story."
 argument-hint: "[issue-number]"
-allowed-tools: Read, AskUserQuestion, Bash(bash .claude/team/team.sh board*), Bash(bash .claude/team/team.sh claim*)
+allowed-tools: Read, AskUserQuestion, Bash(bash .claude/team/team.sh board*), Bash(bash .claude/team/team.sh claim*), Bash(bash "*/.claude/skills/claim-story/../../team/team.sh" board*)
 ---
 
 # /claim-story — 認領 story

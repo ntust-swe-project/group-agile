@@ -1,7 +1,7 @@
 ---
 name: ship-story
 description: "Takes a finished story to a pull request: runs the definition-of-done preflight, gets /story-done passed, drafts the ai-log entry for the user to confirm, pushes the branch and opens the PR from the team template with Closes #N. Use when the user says a story is done, wants to open a PR, or asks what is left before merging."
-allowed-tools: Read, Edit, Glob, Grep, AskUserQuestion, Skill, Bash(bash .claude/team/team.sh preflight*), Bash(bash .claude/team/team.sh board*), Bash(git status*), Bash(git diff*), Bash(git log*), Bash(git add *), Bash(git commit *), Bash(git push -u origin *), Bash(gh pr create *), Bash(gh pr view*)
+allowed-tools: Read, Edit, Glob, Grep, AskUserQuestion, Skill, Bash(bash .claude/team/team.sh preflight*), Bash(bash .claude/team/team.sh board*), Bash(git status*), Bash(git diff*), Bash(git log*), Bash(git add *), Bash(git commit *), Bash(git push -u origin *), Bash(gh pr create *), Bash(gh pr view*), Bash(bash "*/.claude/skills/ship-story/../../team/team.sh" preflight*)
 ---
 
 # /ship-story — 完成 story、開 PR

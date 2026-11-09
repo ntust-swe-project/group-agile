@@ -1,7 +1,7 @@
 ---
 name: board
 description: "Shows the team board from GitHub Issues: the story you hold, the stories free to claim in PO order, who is on what, PRs waiting for review, and your next step. Use when the user asks for project status, what to work on next, which stories are available, or what they currently hold."
-allowed-tools: Bash(bash .claude/team/team.sh board*)
+allowed-tools: Bash(bash .claude/team/team.sh board*), Bash(bash "*/.claude/skills/board/../../team/team.sh" board*)
 ---
 
 # /board — 團隊看板

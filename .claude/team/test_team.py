@@ -4,6 +4,7 @@ GitHub and git state are stubbed, so these run offline.
 """
 
 import json
+import re
 import os
 import subprocess
 import sys
@@ -225,6 +226,29 @@ class Guard(unittest.TestCase):
             raise team.GhError("no gh")
         with mock.patch.object(team, "gh_api", broken):
             self.assertEqual(self.bash("git checkout -b feat/13-x")[0], "ask")
+
+
+class SkillInjections(unittest.TestCase):
+    """Each !`command` a skill injects must match one of its allowed-tools.
+
+    Claude Code expands ${CLAUDE_SKILL_DIR} to an absolute path (C:/dev/... on
+    Windows) before checking permissions; a pattern written as a relative path
+    never matches, and /board fails with "This command requires approval".
+    """
+
+    def test_injected_commands_are_allowed(self):
+        import fnmatch
+        skills = team.ROOT / ".claude/skills"
+        for name in ("board", "claim-story", "ship-story", "publish-stories"):
+            text = (skills / name / "SKILL.md").read_text(encoding="utf-8")
+            allowed = re.search(r"^allowed-tools:\s*(.*)$", text, re.M).group(1)
+            patterns = re.findall(r"Bash\((.*?)\)(?:,|$)", allowed)
+            for cmd in re.findall(r"^!`(.*)`\s*$", text, re.M):
+                for skill_dir in ("C:/dev/swe_project/group-agile/.claude/skills/" + name,
+                                  "/home/u/group-agile/.claude/skills/" + name):
+                    expanded = cmd.replace("${CLAUDE_SKILL_DIR}", skill_dir)
+                    self.assertTrue(any(fnmatch.fnmatchcase(expanded, p) for p in patterns),
+                                    "%s: %s 不符合 allowed-tools %s" % (name, expanded, patterns))
 
 
 class Messages(unittest.TestCase):
