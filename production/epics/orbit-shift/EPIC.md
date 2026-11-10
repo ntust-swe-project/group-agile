@@ -19,7 +19,7 @@
 - 系統之間不互相找節點，只透過下面的共用訊號溝通；需要呼叫對方的方法時，由 `Main` 在 `_ready()` 注入參考。
 - 注入：`Main` 的腳本是 `src/main.gd`，不放遊戲邏輯。接收方腳本宣告以來源節點 snake_case 命名的屬性（例如 `var station_integrity: Node`），需要新依賴時在 `main.gd` 的 `INJECTIONS` 加一列。子節點的 `_ready()` 比 `Main` 先跑，所以注入的參考不能在自己的 `_ready()` 裡用。
 - 每張 story 完成時，`godot --path .` 開起來就要看得到它的效果，不是只有單元測試過。
-- 資料夾：每個系統的腳本、場景、資料檔放 `src/<系統>/`（snake_case，例如 `src/day_cycle/`、`src/crisis_director/`），測試放 `tests/unit/<系統>/`；跨系統共用的放 `src/core/`。`main.tscn` 已預留上面 8 個空節點，各 story 把自己的腳本掛上對應節點即可，不要改名或搬動。
+- 資料夾：照各 story 的 Files 清單，邏輯腳本放 `src/core/`，畫面與場景放 `src/ui/`，測試放 `tests/unit/core/`；檔名用系統名 snake_case（例如 `day_cycle.gd`）。`main.tscn` 已預留上面 8 個節點，各 story 把腳本掛上對應節點即可：不要改名、搬動或調整順序；需要時可以改節點型別（例如 `ResultScreen` 改成 `CanvasLayer`），也可以在 `Main` 底下另加非系統節點（例如 HUD）。
 
 **共用訊號**：放在 autoload `Events`（`src/core/events.gd`，story 001 建立），只宣告訊號、不放邏輯。
 

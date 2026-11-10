@@ -30,11 +30,15 @@ func test_events_autoload_is_registered_to_events_script() -> void:
 	# Arrange
 	var key := "autoload/Events"
 
-	# Act
+	# Act — the editor may store the path as a uid:// string; resolve it
 	var value: String = ProjectSettings.get_setting(key, "")
+	var path := value.trim_prefix("*")
+	if path.begins_with("uid://"):
+		path = ResourceUID.get_id_path(ResourceUID.text_to_id(path))
 
 	# Assert — the leading * means it is a singleton (global name Events)
-	assert_str(value).is_equal("*" + EVENTS_PATH)
+	assert_bool(value.begins_with("*")).is_true()
+	assert_str(path).is_equal(EVENTS_PATH)
 
 
 func test_events_declares_exactly_the_contract_signals() -> void:
