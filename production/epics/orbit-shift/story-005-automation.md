@@ -34,6 +34,8 @@
 - [ ] 有模組的房間發生設備故障時，模組在一段時間（可調參數）後自動完成該修理任務，期間殖民者仍可搶先完成
 - [ ] 模組不處理隕石破洞（破洞仍需殖民者）
 - [ ] 畫面在有模組的房間上標示模組
+- [ ] 收到 `Events.day_ended` 時加建造點；聽 `Events.crisis_started` 找有模組房間的故障，修好時發出 `Events.task_completed`（見 `EPIC.md`「整合約定」）
+- [ ] `AutoRepair` 掛在 `src/main.tscn` 底下，`godot --path .` 開起來能蓋模組並看到它自動修復
 
 ---
 

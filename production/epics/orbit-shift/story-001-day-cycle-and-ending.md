@@ -36,6 +36,10 @@
 - [ ] 第 30 天結束時判定勝利
 - [ ] 不論勝敗都切到結算畫面，顯示：結果、存活天數、剩餘完整度、殖民者狀態摘要
 - [ ] 天數長度、總天數、完整度上限都從資料檔讀取，不寫死在程式碼
+- [ ] 建立 `src/main.tscn` 並設為 `project.godot` 的 `run/main_scene`，`DayCycle`、`StationIntegrity` 是它的子節點
+- [ ] 建立 autoload `Events`，宣告 `EPIC.md`「整合約定」列出的全部訊號（其他 story 不必再改這個檔）
+- [ ] 發出 `day_started`、`day_ended`、`integrity_changed`、`game_ended`；收到 `colonists_collapsed` 判定失敗
+- [ ] `godot --path .` 開起來看得到天數推進、完整度與結算畫面
 
 ---
 
@@ -55,6 +59,8 @@
 
 ## Files
 
+- `src/main.tscn`、`src/main.gd`
+- `src/core/events.gd`、`project.godot`（autoload 與 main_scene）
 - `src/core/day_cycle.gd`
 - `src/core/station_integrity.gd`
 - `src/ui/result_screen.tscn`
