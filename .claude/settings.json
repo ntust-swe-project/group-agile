@@ -12,7 +12,8 @@
     "allow": [
       "Bash(dir *)",
       "Bash(python -m pytest *)",
-      "Bash(py -m pytest *)"
+      "Bash(py -m pytest *)",
+      "Bash(bash .claude/team/team.sh *)"
     ],
     "deny": [
       "Bash(rm -rf *)",
@@ -161,6 +162,11 @@
             "type": "command",
             "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/detect-gaps.sh\"",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/team/team.sh\" session-start",
+            "timeout": 30
           }
         ]
       }
@@ -203,6 +209,16 @@
             "type": "command",
             "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/validate-read.sh\"",
             "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|PowerShell|Write|Edit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/team/team.sh\" hook-pretool",
+            "timeout": 60
           }
         ]
       }
