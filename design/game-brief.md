@@ -2,8 +2,8 @@
 
 <!--
 CCGS /brainstorm（workflow: minimal）產出的一頁 brief，是本組唯一的設計文件。
-方括號 [§n] 指向 common/docs/VISION.md 的章節；⚠ 標記的是 AI 提出、VISION 沒有寫的機制，
-review 時決定是否保留，保留的在 ai-log 記 INV。
+方括號 [§n] 指向 common/docs/VISION.md 的章節；⚠ 是 AI 把 VISION 的方向具體化成的機制（PO 決定不算 INV），
+review 時可再調整。
 -->
 
 **One-sentence pitch:** 在一座危機逐日升級的太空站上，你不直接操作任何人，只排任務優先序，讓三名會累的殖民者自己撐過 30 天。
@@ -16,7 +16,7 @@ review 時決定是否保留，保留的在 ai-log 記 INV。
 
 ## Player goal & fail state — what "working" looks like
 - 勝：撐過第 30 天 [§7]
-- 敗：站體完整度歸零 [§7 必要]；或三名殖民者同時累垮 [§7 建議]
+- 敗：站體完整度歸零 [§7 必要]；或三名殖民者同時累垮（累了卻沒法休息超過 N 秒，例如宿舍出事） [§7 建議]
 - 不論勝敗都進結算畫面：存活天數、剩餘完整度、殖民者狀態 [§4.4]
 
 ## MVP — what must exist to be the game

@@ -28,8 +28,8 @@
 | `integrity_changed(current: float, max_value: float)` | 001 | UI |
 | `game_ended(won: bool, reason: StringName)` | 001 | 結算畫面、所有系統停止 |
 | `colonists_collapsed()` | 002 | 001（失敗判定） |
-| `crisis_started(crisis_id: int, kind: StringName, room_id: StringName)` | 004 | 003（建立任務）、005 |
-| `crisis_resolved(crisis_id: int)` | 004 | UI |
+| `crisis_started(crisis_id: int, kind: StringName, room_id: StringName)` | 004 | 002（宿舍是否出事）、003（建立任務）、005 |
+| `crisis_resolved(crisis_id: int)` | 004 | 002、UI |
 | `task_completed(task_id: int, crisis_id: int)` | 003、005 | 004（停止扣血、標記解決） |
 
 - 危機種類 `kind`：`&"breach"`（隕石破洞）、`&"malfunction"`（設備故障）。
