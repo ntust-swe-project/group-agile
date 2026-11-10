@@ -34,25 +34,25 @@
 - [ ] 完整度降到 0 時立即判定失敗並停止時間推進
 - [ ] 提供「殖民者全員崩潰」的失敗判定入口，觸發時立即判定失敗（實際條件由 story 002 接上）
 - [ ] 第 30 天結束時判定勝利
-- [ ] 不論勝敗都切到結算畫面，顯示：結果、存活天數、剩餘完整度、殖民者狀態摘要
+- [ ] 勝敗判定後發出 `Events.game_ended` 並停止時間推進（結算畫面由 story 006 負責）
 - [ ] 天數長度、總天數、完整度上限都從資料檔讀取，不寫死在程式碼
 - [ ] 建立 `src/main.tscn` 並設為 `project.godot` 的 `run/main_scene`，`DayCycle`、`StationIntegrity` 是它的子節點
 - [ ] 建立 autoload `Events`，宣告 `EPIC.md`「整合約定」列出的全部訊號（其他 story 不必再改這個檔）
 - [ ] 發出 `day_started`、`day_ended`、`integrity_changed`、`game_ended`；收到 `colonists_collapsed` 判定失敗
-- [ ] `godot --path .` 開起來看得到天數推進、完整度與結算畫面
+- [ ] `godot --path .` 開起來看得到天數推進與完整度
 
 ---
 
 ## Implementation Notes
 
 - 日循環與勝敗判定做成可單元測試的邏輯類別，時間由外部注入（測試時可直接推進），不依賴真實時間
-- 結算畫面先用純文字 wireframe
+- 結算畫面不在本 story，見 story 006
 
 ---
 
 ## Out of Scope
 
-- Story 002：殖民者狀態本身（這裡只留失敗判定入口與結算欄位）
+- Story 002：殖民者狀態本身（這裡只留失敗判定入口）
 - Story 004：扣完整度的危機
 
 ---
@@ -63,7 +63,6 @@
 - `src/core/events.gd`、`project.godot`（autoload 與 main_scene）
 - `src/core/day_cycle.gd`
 - `src/core/station_integrity.gd`
-- `src/ui/result_screen.tscn`
 - `tests/unit/core/day_cycle_test.gd`
 
 ---
@@ -79,7 +78,7 @@
 **Story Type**: Logic
 **Required evidence**:
 - Logic: `tests/unit/core/day_cycle_test.gd` — must exist and pass
-- 結算畫面截圖保留於 `production/qa/evidence/`（玩家看得到的變更，依 coding-standards 需截圖）
+- 天數與完整度畫面截圖保留於 `production/qa/evidence/`（玩家看得到的變更，依 coding-standards 需截圖）
 
 **Status**: [ ] Not yet created
 
@@ -88,4 +87,4 @@
 ## Dependencies
 
 - Depends on: None
-- Unlocks: `production/epics/orbit-shift/story-004-escalating-crises.md`, `production/epics/orbit-shift/story-005-automation.md`
+- Unlocks: `production/epics/orbit-shift/story-004-escalating-crises.md`, `production/epics/orbit-shift/story-005-automation.md`, `production/epics/orbit-shift/story-006-result-screen.md`

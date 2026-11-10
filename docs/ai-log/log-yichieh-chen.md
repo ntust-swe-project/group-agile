@@ -10,3 +10,4 @@
 | 4 | 2026-11-10 | #1 MVP 初版 | 用 CCGS `/brainstorm` 依 VISION 提 3 個概念（A 房間圖、B 值班面板、C 簡化 A），填一頁 brief（`design/game-brief.md`） | 修正後接受 |  | 選 C，但要求 C 預先建立插槽（移動集中處理），之後可擴充成 A。6 房間、疲勞、建造點、自動修復、每日加量與保底為 AI 具體化 §3、§4.3、§6，不標 INV | 0.5h |
 | 5 | 2026-11-10 | #1 拆 story | 用 CCGS `/create-stories` 把 brief 的 5 項 MVP 拆成 5 張 story 與驗收條件（`production/epics/orbit-shift/`） | 接受 |  | 驗收條件的細節（同優先序挑最近、疲勞離開時釋放任務等）為 AI 具體化 §3.1～§3.3、§7，不標 INV | 0.5h |
 | 6 | 2026-11-11 | #1 整合約定 | 請 AI 補主場景與共用訊號，讓各 story 能平行開工又接得起來（`EPIC.md`「整合約定」與 5 張 story 的驗收） | 接受 |  | 多人開發有一個可以共同測試的主場景，整合會比較快；屬實作架構，不新增需求 | 0.25h |
+| 7 | 2026-11-11 | #1 review 修正 | 請 AI 依 review 結論修 brief 與 story：累垮重新定義、拿掉回補、兩種危機都留、結算畫面獨立成 story 006 | TODO(人填) |  | TODO(人填) | TODO(人填) h |
