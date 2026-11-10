@@ -17,6 +17,7 @@
 - 遊戲進入點是 `src/main.tscn`（根節點 `Main`），由 story 001 建立並設為 `project.godot` 的 `run/main_scene`。
 - 每個系統是 `Main` 底下的一個子節點（001 的骨架已預留空節點，由各自的 story 掛上腳本）：`DayCycle`、`StationIntegrity`（001）、`Station`、`Colonists`（002）、`TaskBoard`（003）、`CrisisDirector`（004）、`AutoRepair`（005）、`ResultScreen`（006）。
 - 系統之間不互相找節點，只透過下面的共用訊號溝通；需要呼叫對方的方法時，由 `Main` 在 `_ready()` 注入參考。
+- 注入：`Main` 的腳本是 `src/main.gd`，不放遊戲邏輯。接收方腳本宣告以來源節點 snake_case 命名的屬性（例如 `var station_integrity: Node`），需要新依賴時在 `main.gd` 的 `INJECTIONS` 加一列。子節點的 `_ready()` 比 `Main` 先跑，所以注入的參考不能在自己的 `_ready()` 裡用。
 - 每張 story 完成時，`godot --path .` 開起來就要看得到它的效果，不是只有單元測試過。
 - 資料夾：每個系統的腳本、場景、資料檔放 `src/<系統>/`（snake_case，例如 `src/day_cycle/`、`src/crisis_director/`），測試放 `tests/unit/<系統>/`；跨系統共用的放 `src/core/`。`main.tscn` 已預留上面 8 個空節點，各 story 把自己的腳本掛上對應節點即可，不要改名或搬動。
 
@@ -33,7 +34,7 @@
 | `crisis_resolved(crisis_id: int)` | 004 | 002、UI |
 | `task_completed(task_id: int, crisis_id: int)` | 003、005 | 004（停止扣血、標記解決） |
 
-- 危機種類 `kind`：`&"breach"`（隕石破洞）、`&"malfunction"`（設備故障）。
+- 危機種類 `kind`：`&"breach"`（隕石破洞）、`&"malfunction"`（設備故障）。程式裡用 `CrisisKind.BREACH`、`CrisisKind.MALFUNCTION`（`src/core/crisis_kind.gd`），不要手打字串。
 - 房間 ID 由 002 的資料檔定義，004 與 005 讀同一份。
 - 扣完整度：004 呼叫 `StationIntegrity.apply_damage(amount)`（由 `Main` 注入），不透過訊號。
 
