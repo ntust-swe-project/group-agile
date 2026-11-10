@@ -15,9 +15,10 @@
 
 **主場景**
 - 遊戲進入點是 `src/main.tscn`（根節點 `Main`），由 story 001 建立並設為 `project.godot` 的 `run/main_scene`。
-- 每個系統是 `Main` 底下的一個子節點，由自己的 story 加進去：`DayCycle`、`StationIntegrity`（001）、`Station`、`Colonists`（002）、`TaskBoard`（003）、`CrisisDirector`（004）、`AutoRepair`（005）、`ResultScreen`（006）。
+- 每個系統是 `Main` 底下的一個子節點（001 的骨架已預留空節點，由各自的 story 掛上腳本）：`DayCycle`、`StationIntegrity`（001）、`Station`、`Colonists`（002）、`TaskBoard`（003）、`CrisisDirector`（004）、`AutoRepair`（005）、`ResultScreen`（006）。
 - 系統之間不互相找節點，只透過下面的共用訊號溝通；需要呼叫對方的方法時，由 `Main` 在 `_ready()` 注入參考。
 - 每張 story 完成時，`godot --path .` 開起來就要看得到它的效果，不是只有單元測試過。
+- 資料夾：每個系統的腳本、場景、資料檔放 `src/<系統>/`（snake_case，例如 `src/day_cycle/`、`src/crisis_director/`），測試放 `tests/unit/<系統>/`；跨系統共用的放 `src/core/`。`main.tscn` 已預留上面 8 個空節點，各 story 把自己的腳本掛上對應節點即可，不要改名或搬動。
 
 **共用訊號**：放在 autoload `Events`（`src/core/events.gd`，story 001 建立），只宣告訊號、不放邏輯。
 

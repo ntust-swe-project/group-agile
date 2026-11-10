@@ -1,0 +1,19 @@
+[gd_scene format=3]
+
+[node name="Main" type="Node"]
+
+[node name="DayCycle" type="Node" parent="."]
+
+[node name="StationIntegrity" type="Node" parent="."]
+
+[node name="Station" type="Node" parent="."]
+
+[node name="Colonists" type="Node" parent="."]
+
+[node name="TaskBoard" type="Node" parent="."]
+
+[node name="CrisisDirector" type="Node" parent="."]
+
+[node name="AutoRepair" type="Node" parent="."]
+
+[node name="ResultScreen" type="Node" parent="."]
