@@ -3,6 +3,16 @@
 Indie game development managed through 49 coordinated Claude Code subagents.
 Each agent owns a specific domain, enforcing separation of concerns and quality.
 
+## Team Process (group-agile) — read first
+
+This repo is a three-person course project. Its team process (Issue #1) is
+below and **overrides the CCGS rules in this file where they conflict** — for
+example commit message format. A SessionStart hook prints the team board
+(your story, the stories free to claim, open PRs) into every new session, and
+PreToolUse hooks block steps that break the process.
+
+@docs/PROCESS.md
+
 ## Technology Stack
 
 - **Engine**: Godot 4.7.2

@@ -30,7 +30,8 @@
 | --- | --- |
 | [Godot](https://github.com/godotengine/godot/releases/tag/4.7.2-stable) | **4.7.2 stable，standard 版**（不是 mono / .NET 版）。三組一致，見 `common/docs/VISION.md` 第 10 節。裝在哪都可以，但要能用 `godot` 指令呼叫（見下節） |
 | Git（Windows 用 [Git for Windows](https://gitforwindows.org/)） | CCGS 的 hooks 與 scripts 用 bash 執行；Windows 用附帶的 Git Bash |
-| [Python 3](https://www.python.org/downloads/) | CCGS 部分 hooks / scripts 需要 |
+| [Python 3](https://www.python.org/downloads/) | CCGS 部分 hooks / scripts 需要；團隊流程的看板與守門也需要 |
+| [GitHub CLI](https://cli.github.com/)（`gh`） | 看板、`/claim-story`、`/ship-story` 用它讀寫 Issues 與 PR。裝好後執行一次 `gh auth login` |
 
 ### 讓 `godot` 指令可以用
 
@@ -73,12 +74,16 @@ godot --headless -s -d --remote-debug tcp://127.0.0.1:0 res://addons/gdUnit4/bin
 
 結束碼 0 代表全部通過。執行時會印出幾行 `ERROR:`（`The remote port number must be between 1 and 65535`、`Remote Debugger: Unable to connect to host '127.0.0.1:0'`），這是 `--remote-debug tcp://127.0.0.1:0` 造成的，屬正常現象，不影響測試結果。詳見 [`tests/README.md`](tests/README.md)。
 
+## 團隊流程
+
+開發流程、角色、完成的定義、會被擋下的動作都在 [`docs/PROCESS.md`](docs/PROCESS.md)。用 Claude Code 開啟本 repo 時，session 會自動顯示團隊看板（你手上的卡、可以拿的卡），並在不符流程時擋下。常用指令：`/board`、`/claim-story`、`/ship-story`。
+
 ## main 的規則
 
 私有 repo 在 GitHub 免費方案下無法開分支保護，所以先靠團隊約定：
 
 - 不直接 push `main`
-- PR 要 1 人 review、CI `Run GdUnit4 Tests` 綠燈才 merge
+- PR 要 1 人 review、CI `Run GdUnit4 Tests` 與 `process-check` 都綠燈才 merge
 - 用 merge commit，不 squash
 
 ## 專案結構
