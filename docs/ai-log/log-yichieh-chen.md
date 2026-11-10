@@ -10,3 +10,5 @@
 | 4 | 2026-11-10 | #1 MVP 初版 | 用 CCGS `/brainstorm` 依 VISION 提 3 個概念（A 房間圖、B 值班面板、C 簡化 A），填一頁 brief（`design/game-brief.md`） | 修正後接受 |  | 選 C，但要求 C 預先建立插槽（移動集中處理），之後可擴充成 A。6 房間、疲勞、建造點、自動修復、每日加量與保底為 AI 具體化 §3、§4.3、§6，不標 INV | 0.5h |
 | 5 | 2026-11-10 | #1 拆 story | 用 CCGS `/create-stories` 把 brief 的 5 項 MVP 拆成 5 張 story 與驗收條件（`production/epics/orbit-shift/`） | 接受 |  | 驗收條件的細節（同優先序挑最近、疲勞離開時釋放任務等）為 AI 具體化 §3.1～§3.3、§7，不標 INV | 0.5h |
 | 6 | 2026-11-11 | #1 整合約定 | 請 AI 補主場景與共用訊號，讓各 story 能平行開工又接得起來（`EPIC.md`「整合約定」與 5 張 story 的驗收） | 接受 |  | 多人開發有一個可以共同測試的主場景，整合會比較快；屬實作架構，不新增需求 | 0.25h |
+| 9 | 2026-11-11 | #1 開工順序 | review 還沒過，問能否先跑 `/publish-stories` 開暫訂 issue 與看板，有問題再拒絕 PR、修看板；並請 AI 評估目前是否符合 Agile、要不要先做架構設計 | 接受 |  | AI 兩次反對先開 issue：凌晨沒人會認領省不到時間、review 改了 story 會跟 issue 不同步（違反 docs/ 唯一來源）、跳過 review 關卡。改採 AI 建議：先做 001 的整合骨架，PR #5 merge 後緊接著 merge，002、004 就能對著訊號開工。Agile 評估（前期偏重、試玩回饋太晚、review 成為瓶頸）留到 Retro 討論 | TODO(人填) |
+| 10 | 2026-11-11 | #1 001 整合骨架 | 請 AI 建 `Events` autoload（8 個共用訊號）、`src/main.tscn` 預留 8 個系統節點、`EPIC.md` 資料夾慣例與測試 | TODO(人填) |  | TODO(人填) | TODO(人填) |
