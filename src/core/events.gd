@@ -6,6 +6,9 @@
 ## section 整合約定. Change that section in a PR before changing a signal here.
 extends Node
 
+# Signals here are emitted by other scripts, so silence UNUSED_SIGNAL for this file.
+@warning_ignore_start("unused_signal")
+
 ## A new day begins. Emitted by DayCycle (001); CrisisDirector (004) schedules the day's crises.
 signal day_started(day: int)
 
