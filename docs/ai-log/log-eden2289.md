@@ -7,6 +7,6 @@
 | 1 | 2026-11-10 | #1 ai-log 規範 review 修正（PR #2） | 依 EJ 的 review 改規範、PR 範本與揭露表，並起草 PR 回覆 | 修正後接受 | | 檔案改動照收；回覆開頭的問候改成自己的話 | 0.5h |
 | 2 | 2026-11-10 | #1 repo 骨架驗證（PR #3） | 照 README 裝 Godot 4.7.2、跑測試，起草 review | 接受 | | 環境與測試結果已在本機實測（2/2 通過）；review 草稿照原樣送出 | 0.25h |
 | 3 | 2026-11-10 | #1 /board 測試與 MVP review（PR #4、#5） | 測 /board 與守門 hook、對照 VISION 檢查 brief 與 story 的 ⚠ 機制，起草 review | 接受 | | review 草稿照原樣送出；⚠ 機制是否算 `INV` 交給 PO 決定 | 0.25h |
-| 4 | 2026-11-11 | #1 review PR #7(EJ ai-log) | 對照 AI_LOGGING_RULES 檢查 PR #7,起草 approve 留言 | 接受 | | 檢查內容與 CI 綠燈已確認,approve 留言照 AI 草稿原樣送出,未修改 | 0.25h |
-| 5 | 2026-11-11 | #1 INV 標準寫入規範(PR #9) | 把 PR #5 定案的 INV 標準起草成規範條文並開 PR | 接受 | | 條文依 PR #5 PO 定案內容撰寫,未修改直接開 PR | 0.25h |
-| 6 | 2026-11-11 | #1 提醒 anita 建立 ai-log | 起草給 anitaaa17 的 Issue #1 提醒留言 | 接受 | | 留言照 AI 草稿原樣發出,未修改 | 併入第 5 筆計 |
+| 4 | 2026-11-11 | #1 review PR #7（EJ ai-log） | 對照 AI_LOGGING_RULES 檢查 PR #7，起草 approve 留言 | 接受 | | 檢查內容與 CI 綠燈已確認，approve 留言照 AI 草稿原樣送出，未修改 | 0.25h |
+| 5 | 2026-11-11 | #1 INV 標準寫入規範（PR #9→#10） | 把 PR #5 定案的 INV 標準起草成規範條文並開 PR | 接受 | | 條文依 PR #5 PO 定案內容撰寫，未修改直接開 PR | 0.25h |
+| 6 | 2026-11-11 | #1 提醒 anita 建立 ai-log | 起草給 anitaaa17 的 Issue #1 提醒留言 | 接受 | | 留言照 AI 草稿原樣發出，未修改；工時併入第 5 筆計 | 0 |
