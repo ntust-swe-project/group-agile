@@ -7,7 +7,14 @@
 | 1 | 2026-11-10 | #1 ai-log 規範 review 修正（PR #2） | 依 EJ 的 review 改規範、PR 範本與揭露表，並起草 PR 回覆 | 修正後接受 | | 檔案改動照收；回覆開頭的問候改成自己的話 | 0.5h |
 | 2 | 2026-11-10 | #1 repo 骨架驗證（PR #3） | 照 README 裝 Godot 4.7.2、跑測試，起草 review | 接受 | | 環境與測試結果已在本機實測（2/2 通過）；review 草稿照原樣送出 | 0.25h |
 | 3 | 2026-11-10 | #1 /board 測試與 MVP review（PR #4、#5） | 測 /board 與守門 hook、對照 VISION 檢查 brief 與 story 的 ⚠ 機制，起草 review | 接受 | | review 草稿照原樣送出；⚠ 機制是否算 `INV` 交給 PO 決定 | 0.25h |
+| 4 | 2026-11-11 | #1 review PR #7（EJ ai-log） | 對照 AI_LOGGING_RULES 檢查 PR #7，起草 approve 留言 | 接受 | | 檢查內容與 CI 綠燈已確認，approve 留言照 AI 草稿原樣送出，未修改 | 0.25h |
+| 5 | 2026-11-11 | #1 INV 標準寫入規範（PR #9→#10） | 把 PR #5 定案的 INV 標準起草成規範條文並開 PR | 接受 | | 條文依 PR #5 PO 定案內容撰寫，未修改直接開 PR | 0.25h |
+| 6 | 2026-11-11 | #1 提醒 anita 建立 ai-log | 起草給 anitaaa17 的 Issue #1 提醒留言 | 接受 | | 留言照 AI 草稿原樣發出，未修改；工時併入第 5 筆計 | 0h |
 | 7 | 2026-11-11 | #13 S02 房間與殖民者實作 | 用 /dev-story 讓 AI 實作 6 房間圖、3 名殖民者的移動／疲勞／累垮、站內畫面與單元測試 | 修正後接受 | | 引擎檢查抓到測試檔用 `:=` 推斷 Variant 型別，整個測試檔載不起來，改成明確型別才採用；房間名（Bridge、Lab…）與殖民者名字是 AI 取的，照收 | 0.25h |
 | 8 | 2026-11-11 | #13 S02 code review 與修正 | 用 /code-review 請 Godot 專家與 QA 審查，再讓 AI 套用建議 | 部分接受 | | 收：房間 ID 檢查、補 10 個測試、TODO(003)、說明註解；不收：專家說 `.godot/global_script_class_cache.cfg` 不該 commit，對照 `.gitignore` 是錯的；統一房間圖、給 S03 的查詢介面留給之後的卡 | 0.25h |
 | 9 | 2026-11-11 | #1 review PR #19（yichieh-chen ai-log） | 請 AI 對照 ai-log 規範嚴格審查 PR #19，起草 review 留言 | 接受 | | review 草稿照原樣用 Comment 送出 | 0.25h |
+| 10 | 2026-11-11 | #1 PR #10 review 修正 | 請 AI 說明 PR #10 的 review 要求並逐點修改規範與第 4～6 筆，起草回覆 | 接受 | | 5 點修改與回覆照收；§6 範圍外算 `INV` 由我決定保留；7～9 在 PR #20 | 0.25h |
+| 11 | 2026-11-11 | #1 review PR #21（提案流程） | 請 AI 審查 PR #21，起草 approve 留言 | 修正後接受 | | 原草稿第 3 點寫成我們先認了「正式美術屬範圍外」，改成不預設立場、請 PO 在提案 issue 判定後才送出 | 0.5h |
+| 12 | 2026-11-11 | #1 美術提案 #22～#25 | 請 CCGS art-director 與 Claude 評估美術方向（Meshy、Godot MCP、素材包、視角），起草 4 張提案 | 部分接受 | | 收：art-director 的 3 張可讀性提案（#22～#24）、Meshy 預渲染路線與 VISION 範圍分析；不收：art-director 只提 placeholder 程度的美術、Claude 起初說 Meshy 不適合且誤以為地圖必須俯視，經我指正 VISION 沒規定視角後改成側視＋Meshy 預渲染（#25） | 0.5h |
 | 13 | 2026-11-11 | #13 S02 依 PR #20 review 修正 | 請 AI 修 EJ 建議 demo 前修的 3 件（地圖鋪滿畫面、空名單不判累垮、勾 story 檔），重拍截圖並重蓋 stamp | 接受 | | 做法照 AI 提案收；AI 初版畫面程式有型別推斷錯誤，被整合測試抓到後修正才交付；回歸測試確認過修前 FAILED、修後 PASSED | 0.25h |
+| 14 | 2026-11-11 | #1 PR #10 小修正與 review PR #19、#26 | 請 AI 改 PR #10 的 2 個小意見、把「舊列」解讀寫進規範，並 review PR #19（ai-log）與 PR #26（S01，含 4.7 API 對照），起草留言 | 接受 | | 修正與 4 則留言照 AI 草稿原樣送出；「舊列」解讀由我決定同意 | 0.25h |
