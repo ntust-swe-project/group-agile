@@ -1,9 +1,10 @@
 ## Priority and task panel (story 003): reorder task kinds, see the task list
 ## and what every colonist is doing.
 ##
-## The player can only change priorities (and, until story 004 produces real
-## crises, add debug tasks). There is deliberately no control that sends a
-## given colonist to a given task. Everything here reads [member board] each frame.
+## The player can only change priorities. There is deliberately no control that
+## sends a given colonist to a given task. Colonist status words come from
+## [ColonistStatus], the same as in the station view. Everything here reads
+## [member board] each frame.
 extends Control
 
 ## Most task lines shown before the rest are summed up.
@@ -13,10 +14,8 @@ const MAX_TASK_LINES := 7
 var board: Node
 
 var _priority_labels: Array[Label] = []
-var _debug_room_cursor: int = 0
 
 @onready var _priority_rows: VBoxContainer = %PriorityRows
-@onready var _debug_buttons: HBoxContainer = %DebugButtons
 @onready var _task_title: Label = %TaskTitle
 @onready var _task_list: Label = %TaskList
 @onready var _colonist_list: Label = %ColonistList
@@ -26,7 +25,7 @@ func _ready() -> void:
 	for rank in CrisisKind.ALL.size():
 		var row := HBoxContainer.new()
 		var label := Label.new()
-		label.custom_minimum_size.x = 170
+		label.custom_minimum_size.x = 180
 		row.add_child(label)
 		var up := Button.new()
 		up.text = "Up"
@@ -38,11 +37,6 @@ func _ready() -> void:
 		row.add_child(down)
 		_priority_rows.add_child(row)
 		_priority_labels.append(label)
-	for kind: StringName in CrisisKind.ALL:
-		var button := Button.new()
-		button.text = "+ " + _kind_name(kind)
-		button.pressed.connect(_add_debug_task.bind(kind))
-		_debug_buttons.add_child(button)
 
 
 func _process(_delta: float) -> void:
@@ -51,14 +45,6 @@ func _process(_delta: float) -> void:
 	_task_title.text = "Tasks (%d)" % board.tasks.size()
 	_task_list.text = _task_lines()
 	_colonist_list.text = _colonist_lines()
-
-
-# Debug only: rooms are taken in data-file order, round robin, so the result is
-# the same on every run.
-func _add_debug_task(kind: StringName) -> void:
-	var rooms: Array[StringName] = board.map.room_ids
-	board.add_task(kind, rooms[_debug_room_cursor % rooms.size()])
-	_debug_room_cursor += 1
 
 
 func _task_lines() -> String:
@@ -78,22 +64,23 @@ func _colonist_lines() -> String:
 	var lines: Array[String] = []
 	for index in board.colonists.colonists.size():
 		var colonist: Colonist = board.colonists.colonists[index]
-		lines.append("%s: %s" % [colonist.display_name, _activity(index, colonist)])
+		lines.append("%s: %s" % [colonist.display_name, ColonistStatus.label(ColonistStatus.of(colonist))])
+		var detail := _task_detail(index, colonist)
+		if detail != "":
+			lines.append("   " + detail)
 	return "\n".join(lines)
 
 
-func _activity(index: int, colonist: Colonist) -> String:
-	if colonist.state == Colonist.State.RESTING:
-		return "Resting"
+# Task line under a colonist's status: where it is going or what it is working
+# on. Empty for anyone not on a task (a resting colonist shows only the status).
+func _task_detail(index: int, colonist: Colonist) -> String:
 	var task: WorkTask = board.task_of(index)
-	if task == null:
-		return "Idle"
+	if task == null or colonist.state != Colonist.State.WORKING:
+		return ""
+	var where := "%s (%s)" % [_room_name(task.room_id), _kind_name(task.kind)]
 	if colonist.mover.is_moving() or colonist.mover.room_id != task.room_id:
-		return "Going to %s (%s)" % [_room_name(task.room_id), _kind_name(task.kind)]
-	return "Working in %s (%s) %d%%" % [
-		_room_name(task.room_id), _kind_name(task.kind),
-		100.0 * task.progress / board.task_work_seconds,
-	]
+		return "to " + where
+	return "%s %d%%" % [where, 100.0 * task.progress / board.task_work_seconds]
 
 
 func _kind_name(kind: StringName) -> String:
