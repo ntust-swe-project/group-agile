@@ -4,13 +4,14 @@
 
 [resource]
 script = ExtResource("1_curve")
-base_crises = 1.0
-growth_per_day = 0.3
-min_crises_per_day = 1
+base_crises = 2.0
+growth_per_day = 0.15
+min_crises_per_day = 2
 max_crises_per_day = 8
 breach_weight = 1.0
 malfunction_weight = 1.0
-breach_damage_per_second = 1.0
-malfunction_damage_per_second = 0.25
+breach_damage_per_second = 0.5
+malfunction_damage_per_second = 0.2
 min_start_delay_seconds = 3.0
 latest_start_day_fraction = 0.8
+first_crisis_latest_seconds = 15.0
