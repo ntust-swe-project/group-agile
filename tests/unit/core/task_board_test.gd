@@ -71,7 +71,6 @@ func _completions() -> Array:
 	return seen
 
 
-
 func after_test() -> void:
 	for cleanup in _cleanups:
 		cleanup.call()
@@ -130,6 +129,20 @@ func test_free_colonists_claim_different_tasks() -> void:
 	assert_array(holders).contains_exactly_in_any_order([0, 1])
 	assert_object(_board.task_of(2)).is_null()
 	assert_int(_colonists.colonists[2].state).is_equal(Colonist.State.IDLE)
+
+
+func test_colonists_in_different_rooms_each_claim_their_nearest_task() -> void:
+	# Arrange: Ann in a (b is 1 hop, d is 2), Bob in e (d is 1 hop, b is 2), Cat
+	# exhausted. The d task has the smaller id, so an id-only pick would hand it to Ann.
+	_colonists.colonists[1].mover.room_id = &"e"
+	_exhaust(2)
+	var task_d: int = _board.add_task(CrisisKind.BREACH, &"d")
+	var task_b: int = _board.add_task(CrisisKind.BREACH, &"b")
+	# Act
+	_step(0.5)
+	# Assert
+	assert_int((_board.task_of(0) as WorkTask).id).is_equal(task_b)
+	assert_int((_board.task_of(1) as WorkTask).id).is_equal(task_d)
 
 
 func test_one_task_is_claimed_by_a_single_colonist() -> void:
@@ -262,11 +275,10 @@ func test_exhausted_colonist_releases_the_task_and_another_can_claim_it() -> voi
 	assert_int((_board.tasks[0] as WorkTask).claimed_by).is_equal(0)
 	# Act: 1s of work takes Ann to max fatigue, so she walks off to the dorm
 	_step(1.0)
-	# Assert: released, progress reset, nobody free to take it yet
+	# Assert: released, nobody free to take it yet
 	var task: WorkTask = _board.tasks[0]
 	assert_int(ann.state).is_equal(Colonist.State.RESTING)
 	assert_bool(task.is_claimed()).is_false()
-	assert_float(task.progress).is_equal(0.0)
 	assert_str(ann.work_room).is_empty()
 	# Act: Bob has rested, the next frame he takes it
 	_colonists.colonists[1].fatigue = 0.0
@@ -275,8 +287,45 @@ func test_exhausted_colonist_releases_the_task_and_another_can_claim_it() -> voi
 	assert_int(task.claimed_by).is_equal(1)
 
 
-func test_colonist_that_rested_returns_to_idle_not_to_the_released_task_room() -> void:
-	# Arrange: as above, then let Ann walk to the dorm (2 hops) and rest 100 -> 30
+func test_task_released_halfway_must_be_redone_in_full_by_the_next_colonist() -> void:
+	# Arrange: Ann in b at fatigue 70 can work 3s; the task needs 4s.
+	# Bob waits in a (1 hop from b), Cat is exhausted.
+	var ann: Colonist = _colonists.colonists[0]
+	ann.mover.room_id = &"b"
+	ann.fatigue = 70.0
+	_exhaust(1)
+	_exhaust(2)
+	_board.add_task(CrisisKind.BREACH, &"b")
+	var seen := _completions()
+	_step(0.5)  # Ann claims
+	_step(1.0)  # Ann seen in place (fatigue 80)
+	_step(1.0)  # 1s of work (fatigue 90)
+	var task: WorkTask = _board.tasks[0]
+	assert_float(task.progress).is_equal(1.0)
+	# Act: Ann hits max fatigue and leaves; Bob is free again
+	_step(1.0)
+	_colonists.colonists[1].fatigue = 0.0
+	# Assert: the half-done work is gone
+	assert_bool(task.is_claimed()).is_false()
+	assert_float(task.progress).is_equal(0.0)
+	assert_bool(task.in_place).is_false()
+	# Act: Bob claims, walks a -> b (2s), is seen in place, then works 3.5s
+	_step(0.5)
+	assert_int(task.claimed_by).is_equal(1)
+	_step(2.0)
+	_step(3.5)
+	# Assert: 3.5s is not enough; carried-over progress would have finished it
+	assert_array(seen).is_empty()
+	assert_float(task.progress).is_equal(3.5)
+	# Act: the last 0.5s
+	_step(0.5)
+	# Assert
+	assert_array(seen).is_equal([[task.id, -1]])
+
+
+func test_rested_colonist_gets_work_again_only_by_claiming_it_from_the_board() -> void:
+	# Arrange: as above, then let Ann walk to the dorm (2 hops) and rest 100 -> 30.
+	# clear_work() made her idle after rest; the board then hands the task out again.
 	var ann: Colonist = _colonists.colonists[0]
 	ann.mover.room_id = &"b"
 	ann.fatigue = 95.0
@@ -289,7 +338,7 @@ func test_colonist_that_rested_returns_to_idle_not_to_the_released_task_room() -
 	_step(2.0)
 	_step(2.0)
 	_step(3.5)
-	# Assert: she is idle in the dorm, and takes the task again only via the board
+	# Assert: she is in the dorm and holds the task again because the board re-assigned it
 	assert_str(ann.mover.room_id).is_equal("dorm")
 	assert_int(ann.state).is_equal(Colonist.State.WORKING)
 	assert_int((_board.tasks[0] as WorkTask).claimed_by).is_equal(0)
@@ -367,6 +416,57 @@ func test_after_game_ended_the_board_stops_claiming_working_and_adding() -> void
 	# Assert
 	assert_int(_board.tasks.size()).is_equal(1)
 	assert_bool((_board.tasks[0] as WorkTask).is_claimed()).is_false()
+
+
+func test_game_ended_halfway_through_work_freezes_the_task() -> void:
+	# Arrange: Ann works a task in a (her start room), the others are exhausted
+	_exhaust(1)
+	_exhaust(2)
+	_board.add_task(CrisisKind.BREACH, &"a")
+	var seen := _completions()
+	_step(0.5)  # claim
+	_step(0.5)  # seen in place
+	_step(1.0)  # 1s of work
+	var task: WorkTask = _board.tasks[0]
+	assert_float(task.progress).is_equal(1.0)
+	# Act
+	Events.game_ended.emit(false, &"test")
+	_step(10.0)
+	# Assert: nothing finished, no further work counted
+	assert_array(seen).is_empty()
+	assert_int(_board.tasks.size()).is_equal(1)
+	assert_float(task.progress).is_equal(1.0)
+
+
+# --- crisis resolved elsewhere (story 005 AutoRepair) ---
+
+func test_crisis_resolved_elsewhere_removes_its_task_and_frees_the_colonist() -> void:
+	# Arrange: Ann claims the task for crisis 9; a hand-made task stays on the list
+	_exhaust(1)
+	_exhaust(2)
+	Events.crisis_started.emit(9, CrisisKind.MALFUNCTION, &"b")
+	_board.add_task(CrisisKind.MALFUNCTION, &"e")
+	_step(0.5)
+	assert_int((_board.task_of(0) as WorkTask).crisis_id).is_equal(9)
+	var seen := _completions()
+	# Act
+	Events.crisis_resolved.emit(9)
+	# Assert: the crisis task is gone, Ann is idle, and the board did not report it as its own
+	assert_int(_board.tasks.size()).is_equal(1)
+	assert_int((_board.tasks[0] as WorkTask).crisis_id).is_equal(-1)
+	assert_object(_board.task_of(0)).is_null()
+	assert_int(_colonists.colonists[0].state).is_equal(Colonist.State.IDLE)
+	assert_array(seen).is_empty()
+
+
+func test_crisis_resolved_for_an_unknown_crisis_changes_nothing() -> void:
+	# Arrange
+	_board.add_task(CrisisKind.BREACH, &"b")
+	# Act
+	Events.crisis_resolved.emit(42)
+	Events.crisis_resolved.emit(-1)
+	# Assert
+	assert_int(_board.tasks.size()).is_equal(1)
 
 
 # Deliberate exception to the no-file-I/O rule: the real data file must carry

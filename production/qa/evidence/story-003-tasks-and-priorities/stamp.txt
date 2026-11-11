@@ -1,4 +1,4 @@
-Reviewed-Content-Hash: src/core/task_board.gd d67420610785d3c576d5c42b9aee32df4ceb9450
+Reviewed-Content-Hash: src/core/task_board.gd cc2f7a7914b37dd93602054e9cff1e7b70840d41
 Reviewed-Content-Hash: src/core/task_picker.gd 1292173b65ccd5f0e9fae466f9ce26f3e34084c2
 Reviewed-Content-Hash: src/core/work_task.gd 699be83a412d1ea728e3b1291be6f6d2b9067f70
 Reviewed-Content-Hash: src/ui/priority_panel.gd 87dd221451ee0944afcb9158394151f3a4cb686a
