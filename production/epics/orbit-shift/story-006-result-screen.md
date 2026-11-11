@@ -2,6 +2,7 @@
 
 > **Epic**: Orbit Shift（軌道值班）MVP
 > **Status**: Ready
+> **Issue**: #17
 > **Layer**: Presentation
 > **Type**: UI
 > **Estimate**: S
