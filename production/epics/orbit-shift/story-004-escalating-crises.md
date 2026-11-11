@@ -42,6 +42,21 @@
 
 ---
 
+## 延後驗收（PO 決定，2026-11-11）
+
+下面兩條的程式已完成並有單元測試，但要等 S01（#12，PR #26）讓 `Main` 發出
+`Events.day_started`、HUD 顯示完整度後，畫面上才看得到。PO 決定 S03 先 merge，
+這兩條的畫面驗收與截圖延到 PR #26 merge 之後，追蹤：#33。
+
+- AC6：`godot --path .` 開起來看得到危機出現與完整度下降
+- AC10：畫面在發生危機的房間上標示危機種類（截圖存 `production/qa/evidence/`）
+
+PR #26 解 conflict 時：`src/main.tscn` 兩邊的 `ext_resource` 與節點都保留；
+`.godot/global_script_class_cache.cfg` 用 Godot 重新產生（之後 `git status` 確認
+`project.godot` 沒被改寫）。
+
+---
+
 ## Implementation Notes
 
 - 危機排程做成可單元測試的類別：輸入天數與亂數種子，輸出當天的危機清單
@@ -76,7 +91,7 @@
 **Story Type**: Logic
 **Required evidence**:
 - Logic: `tests/unit/core/crisis_scheduler_test.gd` — must exist and pass
-- 危機標示截圖保留於 `production/qa/evidence/`
+- 危機標示截圖保留於 `production/qa/evidence/`（延後，見「延後驗收」）
 
 **Status**: [ ] Not yet created
 
