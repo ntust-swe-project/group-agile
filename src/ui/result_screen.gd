@@ -22,8 +22,8 @@ const TITLE_LOST := "STATION LOST"
 
 ## Loss reason (as in DayCycle.REASON_*) -> text shown to the player.
 const REASON_TEXT := {
-	&"integrity_depleted": "Integrity depleted",
-	&"colonists_collapsed": "All colonists collapsed",
+	DayCycle.REASON_INTEGRITY: "Integrity depleted",
+	DayCycle.REASON_COLONISTS: "All colonists collapsed",
 }
 
 ## The DayCycle node; set by Main before the first frame.
