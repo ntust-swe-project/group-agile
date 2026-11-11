@@ -38,6 +38,13 @@
 - 房間 ID 由 002 的資料檔定義，004 與 005 讀同一份。
 - 扣完整度：004 呼叫 `StationIntegrity.apply_damage(amount)`（由 `Main` 注入），不透過訊號。
 
+**房間狀態標示**（提案 #24，004、005 照做）
+- 危機與模組用**文字標籤＋外框樣式**區分：破洞 `BREACH`、故障 `FAULT`、自動修復模組 `AUTO`；灰階截圖也要分得出三種。
+- 顏色只當輔助（可用 Okabe-Ito 色盤），不靠顏色單獨表達意思。
+- 不閃爍；要閃的話低於 3 Hz。
+- 房間本身用中性色並保留房名，彩色只留給狀態標示。
+- 殖民者的疲勞條用中性色（story 007），不和危機顏色撞色。
+
 ## Stories
 
 | # | Story | Type | Status | ADR |
@@ -48,3 +55,6 @@
 | 004 | 逐波危機 | Logic | Ready | N/A (minimal) |
 | 005 | 自動化 | Logic | Ready | N/A (minimal) |
 | 006 | 結算畫面 | UI | Ready | N/A (minimal) |
+| 007 | 殖民者狀態可見 | UI | Ready | N/A (minimal) |
+| 008 | 側視艙段（便宜版） | Visual/Feel | Ready | N/A (minimal) |
+| 009 | 預渲染殖民者動畫 | Visual/Feel | Ready | N/A (minimal) |

@@ -4,6 +4,10 @@
 [ext_resource type="Script" path="res://src/core/day_cycle.gd" id="2_day_cycle"]
 [ext_resource type="Script" path="res://src/core/station_integrity.gd" id="3_integrity"]
 [ext_resource type="Script" path="res://src/ui/hud.gd" id="4_hud"]
+[ext_resource type="Script" path="res://src/core/station.gd" id="2_station"]
+[ext_resource type="Script" path="res://src/core/colonists.gd" id="3_colonists"]
+[ext_resource type="Script" path="res://src/core/crisis_director.gd" id="4_crisis_director"]
+[ext_resource type="Script" path="res://src/core/task_board.gd" id="4_task_board"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_main")
@@ -15,12 +19,16 @@ script = ExtResource("2_day_cycle")
 script = ExtResource("3_integrity")
 
 [node name="Station" type="Node" parent="."]
+script = ExtResource("2_station")
 
 [node name="Colonists" type="Node" parent="."]
+script = ExtResource("3_colonists")
 
 [node name="TaskBoard" type="Node" parent="."]
+script = ExtResource("4_task_board")
 
 [node name="CrisisDirector" type="Node" parent="."]
+script = ExtResource("4_crisis_director")
 
 [node name="AutoRepair" type="Node" parent="."]
 
