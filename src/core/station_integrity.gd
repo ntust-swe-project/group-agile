@@ -21,8 +21,12 @@ func _ready() -> void:
 	var settings := GameConfig.load_settings()
 	if settings.is_empty():
 		return
-	# Deferred so listeners created later in Main's _ready see the first value.
-	configure.call_deferred(settings["integrity_max"])
+	# Set the cap right away so damage taken before the first frame is not
+	# refilled later; only the announcement is deferred, so listeners created
+	# later in Main's _ready still see the first value.
+	max_value = settings["integrity_max"]
+	current = max_value
+	_announce.call_deferred()
 
 
 ## Sets the cap, refills to it and emits [signal Events.integrity_changed].
@@ -39,4 +43,9 @@ func apply_damage(amount: float) -> void:
 	if amount <= 0.0:
 		return
 	current = maxf(current - amount, 0.0)
+	Events.integrity_changed.emit(current, max_value)
+
+
+# Announces the value as it is now, not the starting value.
+func _announce() -> void:
 	Events.integrity_changed.emit(current, max_value)

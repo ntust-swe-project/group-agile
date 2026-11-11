@@ -292,6 +292,32 @@ func test_apply_damage_with_negative_amount_does_not_repair() -> void:
 	assert_array(_integrity_values).is_equal([INTEGRITY_MAX, 60.0])
 
 
+func test_damage_before_first_frame_is_not_refilled_by_startup() -> void:
+	# Arrange — in the tree, _ready sets the cap at once and defers only the announcement
+	var integrity: StationIntegrity = auto_free(StationIntegrity.new())
+	add_child(integrity)
+
+	# Act — damage lands in the same frame, before the deferred announcement runs
+	integrity.apply_damage(30.0)
+	await get_tree().process_frame
+
+	# Assert — still damaged, and the announcement reports the damaged value
+	assert_float(integrity.current).is_equal(integrity.max_value - 30.0)
+	assert_float(_integrity_values[-1]).is_equal(integrity.max_value - 30.0)
+
+
+func test_startup_announces_integrity_once_after_the_first_frame() -> void:
+	# Arrange / Act
+	var integrity: StationIntegrity = auto_free(StationIntegrity.new())
+	add_child(integrity)
+	var announced_before_frame := _integrity_values.size()
+	await get_tree().process_frame
+
+	# Assert
+	assert_int(announced_before_frame).is_equal(0)
+	assert_array(_integrity_values).is_equal([integrity.max_value])
+
+
 # --- data file validation ---
 
 func test_validate_accepts_complete_settings() -> void:
