@@ -18,3 +18,10 @@ labels: proposal
 ## 對到 VISION 哪一節
 
 <!-- 例如 §3.1；對不到就寫「VISION 沒有」 -->
+
+## 這個點子是 AI 提的嗎？
+
+<!-- 三選一：
+     - AI 提的：提案人在自己的 ai-log 記一筆；VISION 對不到就標 `INV`
+     - 自己提的，問過 AI 是否可行：照常記 ai-log，不標 `INV`
+     - 自己提的，沒用 AI -->

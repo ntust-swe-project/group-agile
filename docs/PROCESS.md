@@ -59,13 +59,13 @@ flowchart LR
 
 有新點子（功能、畫面、試玩回饋）時，**先開提案，不要直接開 story**；story 由 PO 開。
 
-1. **開提案**：New issue 選 **Proposal** 範本（會自動帶 `[Proposal]` 標題與 `proposal` label）。一張只寫一件事：哪裡不夠、希望變成什麼、對到 VISION 哪一節（對不到就寫「VISION 沒有」）。
+1. **開提案**：New issue 選 **Proposal** 範本（會自動帶 `[Proposal]` 標題與 `proposal` label）。一張只寫一件事：哪裡不夠、希望變成什麼、對到 VISION 哪一節（對不到就寫「VISION 沒有」）、是不是 AI 提的（AI 提的要記 ai-log，角色 C 才統計得到 `INV`）。
 2. **討論**留在該提案 issue 底下，不要留在置頂的入口 issue。
 3. **PO 判定**（有空時看 `is:open label:proposal`）：
 
    | 判定 | 做法 |
    | --- | --- |
-   | 收 | 在 `docs/` branch 跑 `/create-stories` → `/publish-stories` 開成 story，提案留言 `→ #<story issue>` 後關閉 |
+   | 收 | 在 `docs/<提案 issue 編號>-…` branch 跑 `/create-stories` → `/publish-stories` 開成 story，提案留言 `→ #<story issue>` 後關閉 |
    | 不收 | 留言寫原因（例如 VISION §6 範圍外、時程不夠）後關閉 |
    | 之後再說 | 留言說明原因，保持 open |
 
