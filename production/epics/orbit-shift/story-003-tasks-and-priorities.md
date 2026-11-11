@@ -1,13 +1,13 @@
 # Story 003: 任務與優先序
 
 > **Epic**: Orbit Shift（軌道值班）MVP
-> **Status**: Ready
+> **Status**: Complete
 > **Issue**: #14
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: M
 > **Manifest Version**: N/A (minimal — no control manifest)
-> **Last Updated**: —
+> **Last Updated**: 2026-11-11
 
 ## Context
 
@@ -58,12 +58,19 @@
 
 ## Files
 
-- `src/core/task_board.gd`
-- `src/core/task_picker.gd`
-- `src/ui/priority_panel.tscn`
-- `tests/unit/core/task_picker_test.gd`
-
----
+- `src/core/task_board.gd` — created (TaskBoard node: tasks, priorities, claiming, work, release, signals)
+- `src/core/task_picker.gd` — created (pure task selection: priority, distance, id tie-break)
+- `src/core/work_task.gd` — created (WorkTask data)
+- `src/ui/priority_panel.tscn`, `src/ui/priority_panel.gd` — created (priority Up/Down, task list, colonist activity, debug add-task buttons until S03)
+- `src/core/colonist.gd` — modified (added `clear_work()`)
+- `src/core/colonists.gd` — modified (removed the story-002 demo placeholder)
+- `src/main.gd` — modified (INJECTIONS row TaskBoard.colonists)
+- `src/main.tscn` — modified (script attached to TaskBoard)
+- `data/orbit_shift/station.json` — modified (+task_work_seconds, +default_priority, -demo_reassign_seconds)
+- `tests/unit/core/task_picker_test.gd` — created
+- `tests/unit/core/task_board_test.gd` — created
+- `tests/unit/core/colonist_test.gd` — modified (demo keys removed, clear_work test)
+- `production/qa/evidence/story-003-tasks-and-priorities/01-priority-panel-with-tasks.png` + `stamp.txt` — evidence
 
 ## QA Test Cases
 
@@ -78,7 +85,7 @@
 - Logic: `tests/unit/core/task_picker_test.gd` — must exist and pass
 - 優先序面板截圖保留於 `production/qa/evidence/`
 
-**Status**: [ ] Not yet created
+**Status**: [x] Created — `tests/unit/core/task_picker_test.gd`, `tests/unit/core/task_board_test.gd`; screenshots in `production/qa/evidence/story-003-tasks-and-priorities/`
 
 ---
 
@@ -86,3 +93,10 @@
 
 - Depends on: `production/epics/orbit-shift/story-002-rooms-and-colonists.md`
 - Unlocks: `production/epics/orbit-shift/story-005-automation.md`
+
+## Completion Notes
+**Completed**: 2026-11-11
+**Criteria**: 10/10 passing (none deferred)
+**Deviations**: ADVISORY — the "no direct assignment" test only checks public method parameter names; ADVISORY — priority panel UI strings are hardcoded English (not localized). Out of scope for awareness: `.godot/global_script_class_cache.cfg` changed by Godot (restore before commit), `.uid` files (commit them), `docs/img/board-example.png.import` (unrelated).
+**Test Evidence**: `tests/unit/core/task_picker_test.gd` (8), `tests/unit/core/task_board_test.gd` (21); full suite 77 passed; screenshots `production/qa/evidence/story-003-tasks-and-priorities/01…03`
+**Reviewed by**: self, no independent review
