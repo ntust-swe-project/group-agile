@@ -39,6 +39,7 @@
 - [x] 每天至少發生一次危機（每日保底），第 1 天也不例外
 - [x] 危機的發生房間與時間點可用固定亂數種子重現，方便測試
 - [ ] 畫面在發生危機的房間上標示危機種類
+- [ ] 危機標示照 `EPIC.md`「房間狀態標示」：`BREACH`／`FAULT` 文字標籤＋不同外框、灰階分得出、不閃爍（或低於 3 Hz），並把房間改成中性色、保留房名（提案 #24）
 
 ---
 
@@ -75,8 +76,12 @@ PR #26 解 conflict 時：`src/main.tscn` 兩邊的 `ext_resource` 與節點都�
 
 - `src/core/crisis_scheduler.gd`
 - `src/core/crisis.gd`
+- `src/core/crisis_curve.gd`（`crisis_curve.tres` 的 script class）
+- `src/core/crisis_director.gd`（掛在 `Main/CrisisDirector`）
+- `src/ui/crisis_markers.gd`（危機標示佔位版，`TODO(008)`，S08 取代）
 - `assets/data/crisis_curve.tres`
 - `tests/unit/core/crisis_scheduler_test.gd`
+- `tests/unit/core/crisis_director_test.gd`
 
 ---
 
