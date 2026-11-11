@@ -20,3 +20,4 @@
 | 14 | 2026-11-11 | #1 開工 | 請 AI merge PR #5、#8（合入 main、解 ai-log 編號衝突），並用 `/publish-stories` 開 S01～S06 issue、在 Issue #1 通知組員 | 接受 |  | 照計畫順序 merge、開 issue、通知組員，組員可以開始認領 | 0.5h |
 | 15 | 2026-11-11 | #1 認領順序 | 問要不要排 story 優先序；請 AI 依各 story 的 Dependencies 整理依賴圖（S03 可先用假訊號開工）、對調 S03／S04，更新 Issue #1 留言 | 修正後接受 |  | 要求改成依賴圖、拿掉 issue 編號、讓第三人先用假訊號開工 S03，第一輪三人可平行 | 0.5h |
 | 16 | 2026-11-11 | #1 看板機制 | 問認領後是否會通知、如何擋住他人；請 AI 分析看板機制、評估加 `open` label，標 S04～S06 `blocked`，並開 #18 提案自動解除 `blocked` | 修正後接受 |  | 採用 `blocked` 擋住有前置的卡；不加 `open` label（狀態重複會不同步）；自動解除的 Action 只開提案 #18，先不實作 | 0.5h |
+| 17 | 2026-11-11 | #1 環境檢查與 review PR #10（eden INV 標準） | 請 AI 檢查本機環境是否符合開發與測試要求、設定 commit 範本，並 review PR #10：對照 PR #5 定案、project-common 的 VISION 與 ai-log 規範，起草 review 留言 | 修正後接受 |  | 環境檢查與 commit 範本照收；AI 建議由 PO 決定「VISION §6 範圍外算不算 INV」，改成交給 eden 決定；要求到 project-common 確認 VISION，確認範例出自 §3.1 而非 §8、§11.2；標點統一的建議照收 | 0.25h |
