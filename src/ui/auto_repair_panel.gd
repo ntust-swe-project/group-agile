@@ -2,11 +2,14 @@
 ##
 ## Display plus requests only: a click calls `auto_repair.build(room_id)`, which
 ## decides whether it is allowed. Sits at the top, right of the day/integrity
-## HUD text, so the top-left HUD area stays free.
+## HUD text, so the top-left HUD area stays free. The buttons wrap into rows of
+## [constant BUTTON_COLUMNS] so even with every room built the panel stays on
+## screen and above the station hull (which starts at y 143).
 extends CanvasLayer
 
 const FONT_SIZE := 24
 const PANEL_POSITION := Vector2(460, 16)
+const BUTTON_COLUMNS := 3
 
 ## The AutoRepair node to read and ask; set by it.
 var auto_repair: Node
@@ -23,11 +26,16 @@ func _ready() -> void:
 	_points_label = Label.new()
 	_points_label.add_theme_font_size_override("font_size", FONT_SIZE)
 	row.add_child(_points_label)
+	var grid := GridContainer.new()
+	grid.columns = BUTTON_COLUMNS
+	grid.add_theme_constant_override("h_separation", 8)
+	grid.add_theme_constant_override("v_separation", 4)
+	row.add_child(grid)
 	for room_id in auto_repair.map.room_ids:
 		var button := Button.new()
 		button.add_theme_font_size_override("font_size", FONT_SIZE)
 		button.pressed.connect(auto_repair.build.bind(room_id))
-		row.add_child(button)
+		grid.add_child(button)
 		_buttons[room_id] = button
 
 
