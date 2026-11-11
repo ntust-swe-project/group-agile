@@ -2,12 +2,12 @@
 	"dorm_id": "dorm",
 	"start_room": "bridge",
 	"rooms": [
-		{"id": "dorm", "name": "Dorm", "color": "#9a9a9a", "pos": [334, 250]},
-		{"id": "bridge", "name": "Bridge", "color": "#9a9a9a", "pos": [962, 250]},
-		{"id": "engine", "name": "Engine", "color": "#9a9a9a", "pos": [1587, 250]},
-		{"id": "storage", "name": "Storage", "color": "#9a9a9a", "pos": [334, 668]},
-		{"id": "lab", "name": "Lab", "color": "#9a9a9a", "pos": [962, 668]},
-		{"id": "garden", "name": "Garden", "color": "#9a9a9a", "pos": [1587, 668]}
+		{"id": "dorm", "name": "Dorm", "color": "#9a9a9a", "pos": [380, 290]},
+		{"id": "bridge", "name": "Bridge", "color": "#9a9a9a", "pos": [960, 290]},
+		{"id": "engine", "name": "Engine", "color": "#9a9a9a", "pos": [1540, 290]},
+		{"id": "storage", "name": "Storage", "color": "#9a9a9a", "pos": [380, 530]},
+		{"id": "lab", "name": "Lab", "color": "#9a9a9a", "pos": [960, 530]},
+		{"id": "garden", "name": "Garden", "color": "#9a9a9a", "pos": [1540, 530]}
 	],
 	"connections": [
 		["dorm", "bridge"],
