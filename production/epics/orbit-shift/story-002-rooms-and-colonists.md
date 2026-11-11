@@ -1,13 +1,13 @@
 # Story 002: 房間與殖民者
 
 > **Epic**: Orbit Shift（軌道值班）MVP
-> **Status**: Ready
+> **Status**: Complete
 > **Issue**: #13
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: M
 > **Manifest Version**: N/A (minimal — no control manifest)
-> **Last Updated**: —
+> **Last Updated**: 2026-11-11
 
 ## Context
 
@@ -58,13 +58,17 @@
 
 ## Files
 
+- `data/orbit_shift/station.json`
 - `src/core/station_map.gd`
-- `src/core/colonist.gd`
 - `src/core/mover.gd`
+- `src/core/colonist.gd`
+- `src/core/colonists.gd`
+- `src/core/station.gd`
+- `src/ui/station_view.gd`
 - `src/ui/station_view.tscn`
+- `src/main.tscn`
+- `src/main.gd`
 - `tests/unit/core/colonist_test.gd`
-
----
 
 ## QA Test Cases
 
@@ -87,3 +91,13 @@
 
 - Depends on: None（失敗判定入口由 `production/epics/orbit-shift/story-001-day-cycle-and-ending.md` 提供，可先用替身接上）
 - Unlocks: `production/epics/orbit-shift/story-003-tasks-and-priorities.md`
+
+---
+
+## Completion Notes
+**Completed**: 2026-11-11
+**Criteria**: 10/10 passing (none deferred)
+**Deviations**: ADVISORY — `src/ui/station_view.gd` hardcodes layout numbers (room size, text position at y=560). The layout fits 1152x648 while the window is 1920x1080, so the map sits in the top-left corner. OUT OF SCOPE — `docs/img/board-example.png.import` was created by the Godot import and is unrelated; do not commit it.
+**Test Evidence**: `tests/unit/core/colonist_test.gd` (31 tests, all passing); `production/qa/evidence/story-002-rooms-and-colonists/` (station-t01s-moving.png, station-t10s-fatigue.png; stamp current)
+**Reviewed by**: self, no independent review (/code-review run: APPROVED WITH SUGGESTIONS, suggestions 1–4 applied)
+**Notes for story 003**: the `TODO(003)` placeholder in `src/core/colonists.gd` (`demo_enabled` / `_tick_demo`) must be deleted, or set `demo_enabled = false`, otherwise it overwrites 003's orders every few seconds. Issue orders through `Colonists.command_go_to(index, room_id)`.
