@@ -236,6 +236,38 @@ func test_schedule_short_day_still_respects_the_minimum_delay() -> void:
 		assert_float(crisis.start_seconds).is_equal(curve.min_start_delay_seconds)
 
 
+func test_schedule_first_crisis_of_every_day_fires_inside_the_opening_window() -> void:
+	# Arrange — issue #33: no long quiet start; 2 crises in a 45s window would
+	# often both land after 15s without the opening window
+	var curve := _curve()
+	curve.base_crises = 2.0
+	curve.growth_per_day = 0.0
+	curve.first_crisis_latest_seconds = 15.0
+	var earliest := curve.min_start_delay_seconds
+	var latest := DAY_LENGTH * curve.latest_start_day_fraction
+	for day in range(1, LAST_DAY + 1):
+		# Act
+		var crises := _schedule(day, SEED_A, curve)
+		# Assert
+		assert_float(crises[0].start_seconds).is_between(earliest, 15.0)
+		var previous := 0.0
+		for crisis in crises:
+			assert_float(crisis.start_seconds).is_between(earliest, latest)
+			assert_float(crisis.start_seconds).is_greater_equal(previous)
+			previous = crisis.start_seconds
+
+
+func test_schedule_opening_window_is_off_by_default_and_changes_nothing() -> void:
+	# Arrange
+	var plain := _curve()
+	var explicit_off := _curve()
+	explicit_off.first_crisis_latest_seconds = 0.0
+	# Act / Assert
+	assert_float(CrisisCurve.new().first_crisis_latest_seconds).is_equal(0.0)
+	for day in range(1, LAST_DAY + 1):
+		assert_array(_signature(_schedule(day, SEED_A, explicit_off))).is_equal(_signature(_schedule(day, SEED_A, plain)))
+
+
 func test_schedule_ids_are_unique_across_the_whole_run_and_nonzero() -> void:
 	# Arrange
 	var ids := {}

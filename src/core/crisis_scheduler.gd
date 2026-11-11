@@ -37,6 +37,7 @@ static func schedule(
 		var room_id := room_ids[rng.randi() % room_ids.size()]
 		var start := _pick_start(rng, curve, day_length)
 		crises.append(Crisis.new(0, kind, room_id, day, start))
+	_pull_first_into_opening_window(crises, rng, curve, day_length)
 	# Not a stable sort, but deterministic: equal inputs sort identically.
 	crises.sort_custom(func(a: Crisis, b: Crisis) -> bool: return a.start_seconds < b.start_seconds)
 	for i in crises.size():
@@ -61,6 +62,26 @@ static func _pick_kind(rng: RandomNumberGenerator, curve: CrisisCurve) -> String
 		if roll < 0.0:
 			return kind
 	return CrisisKind.ALL[CrisisKind.ALL.size() - 1]
+
+
+# Issue #33: with [member CrisisCurve.first_crisis_latest_seconds] above zero, the
+# day's earliest crisis is redrawn inside [earliest, window] when it fell later.
+# Only that crisis moves, and only then is the rng drawn again, so the off case
+# and every other crisis keep their times.
+static func _pull_first_into_opening_window(
+	crises: Array[Crisis], rng: RandomNumberGenerator, curve: CrisisCurve, day_length: float,
+) -> void:
+	if crises.is_empty() or curve.first_crisis_latest_seconds <= 0.0:
+		return
+	var earliest := maxf(curve.min_start_delay_seconds, MIN_START_DELAY_FLOOR)
+	var latest := maxf(day_length * curve.latest_start_day_fraction, earliest)
+	var window := clampf(curve.first_crisis_latest_seconds, earliest, latest)
+	var first := crises[0]
+	for crisis in crises:
+		if crisis.start_seconds < first.start_seconds:
+			first = crisis
+	if first.start_seconds > window:
+		first.start_seconds = earliest + rng.randf() * (window - earliest)
 
 
 static func _pick_start(rng: RandomNumberGenerator, curve: CrisisCurve, day_length: float) -> float:
