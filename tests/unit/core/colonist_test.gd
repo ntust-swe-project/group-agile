@@ -305,6 +305,25 @@ func test_colonists_collapsed_not_emitted_when_only_two_collapse() -> void:
 	assert_int(emitted[0]).is_equal(0)
 
 
+func test_colonists_collapsed_not_emitted_when_roster_is_empty() -> void:
+	# Arrange
+	var data := DATA.duplicate(true)
+	data["colonists"] = []
+	var node: Node = auto_free(COLONISTS_SCRIPT.new())
+	node.auto_tick = false
+	node.demo_enabled = false
+	node.setup(data)
+	add_child(node)
+	var emitted := [0]
+	var on_collapsed := func() -> void: emitted[0] += 1
+	Events.colonists_collapsed.connect(on_collapsed)
+	# Act
+	node.tick(1.0)
+	Events.colonists_collapsed.disconnect(on_collapsed)
+	# Assert
+	assert_int(emitted[0]).is_equal(0)
+
+
 func test_dorm_crisis_tracking_uses_crisis_ids_and_ignores_other_rooms() -> void:
 	# Arrange
 	var node := _colonists_node()

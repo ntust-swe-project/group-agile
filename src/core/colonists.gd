@@ -72,7 +72,9 @@ func tick(delta: float) -> void:
 	if demo_enabled:
 		_tick_demo(delta)
 	var dorm_crisis := dorm_has_unresolved_crisis()
-	var all_collapsed := true
+	# An empty roster is not "everyone collapsed"; without this guard it would
+	# emit colonists_collapsed on the first tick and end the game.
+	var all_collapsed := not colonists.is_empty()
 	for colonist in colonists:
 		colonist.tick(delta, dorm_crisis)
 		all_collapsed = all_collapsed and colonist.is_collapsed()

@@ -5,6 +5,9 @@ extends Control
 const ROOM_SIZE := Vector2(180, 100)
 const DOT_RADIUS := 9.0
 const FONT_SIZE := 16
+## Colonist text rows sit at the bottom of the screen, last row this far up.
+const STATUS_BOTTOM_MARGIN := 24.0
+const STATUS_LINE_HEIGHT := 24.0
 
 ## Room graph to draw; set by Station.
 var map: StationMap
@@ -52,7 +55,13 @@ func _draw_colonist(font: Font, index: int, colonist: Colonist) -> void:
 		colonist.display_name, status, colonist.fatigue, colonist.fatigue_max,
 		Colonist.State.keys()[colonist.state],
 	]
-	draw_string(font, Vector2(20, 560 + index * 24), line, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE, Color.WHITE)
+	draw_string(font, Vector2(20, _status_row_y(index)), line, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE, Color.WHITE)
+
+
+# Baseline y of colonist [param index]'s text row, stacked up from the screen bottom.
+func _status_row_y(index: int) -> float:
+	var rows: int = colonists.colonists.size()
+	return get_viewport_rect().size.y - STATUS_BOTTOM_MARGIN - (rows - 1 - index) * STATUS_LINE_HEIGHT
 
 
 func _center(room_id: StringName) -> Vector2:
