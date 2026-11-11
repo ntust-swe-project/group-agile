@@ -76,8 +76,12 @@ PR #26 解 conflict 時：`src/main.tscn` 兩邊的 `ext_resource` 與節點都�
 
 - `src/core/crisis_scheduler.gd`
 - `src/core/crisis.gd`
+- `src/core/crisis_curve.gd`（`crisis_curve.tres` 的 script class）
+- `src/core/crisis_director.gd`（掛在 `Main/CrisisDirector`）
+- `src/ui/crisis_markers.gd`（危機標示佔位版，`TODO(008)`，S08 取代）
 - `assets/data/crisis_curve.tres`
 - `tests/unit/core/crisis_scheduler_test.gd`
+- `tests/unit/core/crisis_director_test.gd`
 
 ---
 

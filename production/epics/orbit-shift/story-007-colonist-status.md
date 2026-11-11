@@ -29,19 +29,21 @@
 
 *From Issue #23 與 #22 的 PO 判定（VISION §3.1、§3.4）:*
 
-- [ ] 每名殖民者顯示目前狀態：移動、工作、休息、累垮，不靠顏色也分得出（文字或符號，例如 `→`／`W`／`Z`／`!`）
-- [ ] 狀態優先順序：累垮 > 移動 > 工作／休息；累垮用 `Colonist.is_collapsed()`，畫面不另外計時
+- [ ] 每名殖民者顯示目前狀態：移動、工作、休息、閒置、累垮，不靠顏色也分得出（文字或符號，例如 `→`／`W`／`Z`／`.`／`!`）
+- [ ] 狀態優先順序：累垮 > 移動 > 工作／休息／閒置；累垮用 `Colonist.is_collapsed()`，畫面不另外計時
 - [ ] 移動中的殖民者不再顯示成 `WORKING`
 - [ ] 每名殖民者頭上有疲勞條，長度對應 0～`fatigue_max`，用中性色（不用黃→紅，避免與 `EPIC.md`「房間狀態標示」的危機顏色撞色）
 - [ ] 殖民者狀態文字與房名至少 24px，在 1920×1080 下不模糊
 - [ ] 狀態判斷抽成可單元測試的函式，story 009 會共用
-- [ ] 只改顯示，不改 `Colonist`／`Colonists` 的邏輯；`godot --path .` 開起來看得到 4 種狀態
+- [ ] S04 優先序面板（`src/ui/priority_panel.gd`）的 Colonists 欄改用同一個狀態判斷函式、字級至少 24px，畫面上不會有兩套不一致的狀態顯示（任務資訊如 `Going to Lab (Breach)` 可以保留）
+- [ ] 只改顯示，不改 `Colonist`／`Colonists`／`TaskBoard` 的邏輯；`godot --path .` 開起來看得到 5 種狀態
 
 ---
 
 ## Implementation Notes
 
-- 從現有狀態推算：`is_collapsed()` → 累垮；`mover.is_moving()` → 移動；否則依 `state` 為工作或休息
+- 從現有狀態推算：`is_collapsed()` → 累垮；`mover.is_moving()` → 移動；否則依 `state`（`WORKING`／`RESTING`／`IDLE`）為工作、休息或閒置
+- `IDLE` 在 S04 之後很常見：沒任務的殖民者會停在原地等任務
 - 不做頭像、心情、個性；「換成走、站、躺動畫」屬 story 009
 - 上方左側留給 story 001 的 HUD，不要和它重疊
 
@@ -59,7 +61,8 @@
 
 - `src/ui/station_view.gd`
 - `src/ui/colonist_status.gd`
-- `tests/unit/ui/colonist_status_test.gd`
+- `src/ui/priority_panel.gd`（S04 面板的 Colonists 欄）
+- `tests/unit/core/colonist_status_test.gd`（照 `EPIC.md`「整合約定」，測試放 `tests/unit/core/`）
 
 ---
 
@@ -73,8 +76,8 @@
 
 **Story Type**: UI
 **Required evidence**:
-- UI: 移動、工作、休息、累垮 4 種狀態各一張截圖，保留於 `production/qa/evidence/`
-- 狀態判斷函式：`tests/unit/ui/colonist_status_test.gd`
+- UI: 移動、工作、休息、閒置、累垮 5 種狀態各一張截圖（含優先序面板），保留於 `production/qa/evidence/`
+- 狀態判斷函式：`tests/unit/core/colonist_status_test.gd`
 
 **Status**: [ ] Not yet created
 
