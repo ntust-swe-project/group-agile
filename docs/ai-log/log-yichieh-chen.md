@@ -16,7 +16,7 @@
 | 10 | 2026-11-11 | #1 001 整合骨架 | 請 AI 建 `Events` autoload（8 個共用訊號）、`src/main.tscn` 預留 8 個系統節點、`EPIC.md` 資料夾慣例與測試；初版未走 `/dev-story` 與 engine specialist，再請 AI 用 engine-programmer 重做、godot-gdscript-specialist 檢查（加 `main.gd` 注入、`CrisisKind` 常數、消除 4.7.2 unused_signal 警告） | 接受 |  | 註：重做時從上層資料夾啟動，CCGS agent 類型與 hook 未自動載入，specialist 由一般 agent 讀定義檔扮演，hook 改為手動執行；之後在雲端用原生 engine-programmer 與 godot-gdscript-specialist 重新審查 | 1.5h |
 | 11 | 2026-11-11 | #1 骨架說明 | 請 AI 畫骨架說明圖（`src` 分類、Events 用途）並把細節寫成說明文件（節點、訊號表、注入、CrisisKind、測試） | 修正後接受 |  | 初版圖放了測試與 story 編號，組員看不懂；要求測試與細節移到文件，圖只講 `src` 分類與 Events 用途，標籤改用功能名稱 | 0.5h |
 | 12 | 2026-11-11 | #1 PR #8 base | 問 PR #8 要不要改 base 到 PR #5 的 branch，等 #5 merge 後自動回 `main` | 接受 |  | 維持 `main`：改 base 會讓 CI 與 process-check 不跑、repo 沒開自動刪 branch 所以不會自動改回；#5 merge 後 diff 自然只剩骨架。改在 PR 說明加只看骨架的比較連結 | 0.5h |
-| 13 | 2026-11-11 | #1 骨架說明 | 請 AI 在 `src/CLAUDE.md` 加「Orbit Shift 整合骨架」摘要，讓組員新的 session 開發時自動讀到骨架規則 | TODO(人填) |  | TODO(人填) | TODO(人填) |
-| 14 | 2026-11-11 | #1 開工 | 請 AI merge PR #5、#8（合入 main、解 ai-log 編號衝突），並用 `/publish-stories` 開 S01～S06 issue、在 Issue #1 通知組員 | TODO(人填) |  | TODO(人填) | TODO(人填) |
-| 15 | 2026-11-11 | #1 認領順序 | 問要不要排 story 優先序；請 AI 依各 story 的 Dependencies 整理依賴圖（S03 可先用假訊號開工）、對調 S03／S04，更新 Issue #1 留言 | TODO(人填) |  | TODO(人填) | TODO(人填) |
-| 16 | 2026-11-11 | #1 看板機制 | 問認領後是否會通知、如何擋住他人；請 AI 分析看板機制、評估加 `open` label，標 S04～S06 `blocked`，並開 #18 提案自動解除 `blocked` | TODO(人填) |  | TODO(人填) | TODO(人填) |
+| 13 | 2026-11-11 | #1 骨架說明 | 請 AI 在 `src/CLAUDE.md` 加「Orbit Shift 整合骨架」摘要，讓組員新的 session 開發時自動讀到骨架規則 | 接受 |  | 讓組員新的 session 開發時自動讀到骨架規則，避免各自實作最後整合不上 | 0.5h |
+| 14 | 2026-11-11 | #1 開工 | 請 AI merge PR #5、#8（合入 main、解 ai-log 編號衝突），並用 `/publish-stories` 開 S01～S06 issue、在 Issue #1 通知組員 | 接受 |  | 照計畫順序 merge、開 issue、通知組員，組員可以開始認領 | 0.5h |
+| 15 | 2026-11-11 | #1 認領順序 | 問要不要排 story 優先序；請 AI 依各 story 的 Dependencies 整理依賴圖（S03 可先用假訊號開工）、對調 S03／S04，更新 Issue #1 留言 | 修正後接受 |  | 要求改成依賴圖、拿掉 issue 編號、讓第三人先用假訊號開工 S03，第一輪三人可平行 | 0.5h |
+| 16 | 2026-11-11 | #1 看板機制 | 問認領後是否會通知、如何擋住他人；請 AI 分析看板機制、評估加 `open` label，標 S04～S06 `blocked`，並開 #18 提案自動解除 `blocked` | 修正後接受 |  | 採用 `blocked` 擋住有前置的卡；不加 `open` label（狀態重複會不同步）；自動解除的 Action 只開提案 #18，先不實作 | 0.5h |
