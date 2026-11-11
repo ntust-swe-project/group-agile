@@ -29,6 +29,10 @@ extends Resource
 @export var min_start_delay_seconds: float = 3.0
 ## Latest firing time as a fraction of the day length (0..1).
 @export_range(0.0, 1.0) var latest_start_day_fraction: float = 0.8
+## Opening window (issue #33): when above zero, each day's earliest crisis fires
+## no later than this many seconds after the day starts, so no day opens quiet.
+## 0 turns it off. Clamped into the day's firing window.
+@export var first_crisis_latest_seconds: float = 0.0
 
 
 ## Crises to schedule on [param day] (1-based): grows with the day, then is
