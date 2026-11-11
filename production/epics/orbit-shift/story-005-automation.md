@@ -2,6 +2,7 @@
 
 > **Epic**: Orbit Shift（軌道值班）MVP
 > **Status**: Ready
+> **Issue**: #16
 > **Layer**: Feature
 > **Type**: Logic
 > **Estimate**: S

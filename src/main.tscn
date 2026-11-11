@@ -1,0 +1,22 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/main.gd" id="1_main"]
+
+[node name="Main" type="Node"]
+script = ExtResource("1_main")
+
+[node name="DayCycle" type="Node" parent="."]
+
+[node name="StationIntegrity" type="Node" parent="."]
+
+[node name="Station" type="Node" parent="."]
+
+[node name="Colonists" type="Node" parent="."]
+
+[node name="TaskBoard" type="Node" parent="."]
+
+[node name="CrisisDirector" type="Node" parent="."]
+
+[node name="AutoRepair" type="Node" parent="."]
+
+[node name="ResultScreen" type="Node" parent="."]
