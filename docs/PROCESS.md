@@ -44,6 +44,7 @@ flowchart LR
 
 | 狀態 | 在 GitHub 上的樣子 |
 | --- | --- |
+| 提案（還不是 story） | open、label `proposal`，標題 `[Proposal] …` |
 | 可以拿 | open、label `story`、沒有 assignee |
 | 進行中 | open、assignee 是你（每人最多 1 張） |
 | 待 review | 有 `feat/<編號>-…` 的 open PR |
@@ -53,6 +54,24 @@ flowchart LR
 - **順序**：標題開頭的 `S01`、`S02`…，數字小的先做。PO 要調順序就改標題編號。
 - issue 內文第一行 `Story: <story 檔路徑>` 指向 CCGS 的 story 檔；story 檔也寫回 `> **Issue**: #N`。
 - story 檔要先 merge 進 main，組員從 main 開 branch 才讀得到。PO 拆 story 時一樣在 branch 上做（例如 `docs/1-stories`），`/create-stories` → `/publish-stories` → 開 PR。
+
+## 新需求怎麼提（提案 → story）
+
+有新點子（功能、畫面、試玩回饋）時，**先開提案，不要直接開 story**；story 由 PO 開。
+
+1. **開提案**：New issue 選 **Proposal** 範本（會自動帶 `[Proposal]` 標題與 `proposal` label）。一張只寫一件事：哪裡不夠、希望變成什麼、對到 VISION 哪一節（對不到就寫「VISION 沒有」）。
+2. **討論**留在該提案 issue 底下，不要留在置頂的入口 issue。
+3. **PO 判定**（有空時看 `is:open label:proposal`）：
+
+   | 判定 | 做法 |
+   | --- | --- |
+   | 收 | 在 `docs/` branch 跑 `/create-stories` → `/publish-stories` 開成 story，提案留言 `→ #<story issue>` 後關閉 |
+   | 不收 | 留言寫原因（例如 VISION §6 範圍外、時程不夠）後關閉 |
+   | 之後再說 | 留言說明原因，保持 open |
+
+- 提案沒有 `story` label，不會出現在看板，也不能 `/claim-story`。
+- 不收的提案只關閉、不刪除：它是範圍判定的紀錄。
+- 置頂的「新需求入口」issue 只放連結；規則以本節為準。
 
 ## 所有人都要遵守
 
