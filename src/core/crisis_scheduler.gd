@@ -77,7 +77,7 @@ static func _pull_first_into_opening_window(
 	var latest := maxf(day_length * curve.latest_start_day_fraction, earliest)
 	var window := clampf(curve.first_crisis_latest_seconds, earliest, latest)
 	var first := crises[0]
-	for crisis in crises:
+	for crisis: Crisis in crises:
 		if crisis.start_seconds < first.start_seconds:
 			first = crisis
 	if first.start_seconds > window:
