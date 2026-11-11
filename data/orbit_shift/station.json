@@ -2,12 +2,12 @@
 	"dorm_id": "dorm",
 	"start_room": "bridge",
 	"rooms": [
-		{"id": "dorm", "name": "Dorm", "color": "#5b7fb5", "pos": [334, 250]},
-		{"id": "bridge", "name": "Bridge", "color": "#7a9e5b", "pos": [962, 250]},
-		{"id": "engine", "name": "Engine", "color": "#b5775b", "pos": [1587, 250]},
-		{"id": "storage", "name": "Storage", "color": "#8a7ab5", "pos": [334, 668]},
-		{"id": "lab", "name": "Lab", "color": "#5bb5a8", "pos": [962, 668]},
-		{"id": "garden", "name": "Garden", "color": "#b5a85b", "pos": [1587, 668]}
+		{"id": "dorm", "name": "Dorm", "color": "#9a9a9a", "pos": [334, 250]},
+		{"id": "bridge", "name": "Bridge", "color": "#9a9a9a", "pos": [962, 250]},
+		{"id": "engine", "name": "Engine", "color": "#9a9a9a", "pos": [1587, 250]},
+		{"id": "storage", "name": "Storage", "color": "#9a9a9a", "pos": [334, 668]},
+		{"id": "lab", "name": "Lab", "color": "#9a9a9a", "pos": [962, 668]},
+		{"id": "garden", "name": "Garden", "color": "#9a9a9a", "pos": [1587, 668]}
 	],
 	"connections": [
 		["dorm", "bridge"],
@@ -25,5 +25,6 @@
 	"fatigue_fall_per_sec": 12.0,
 	"rest_threshold": 40.0,
 	"collapse_seconds": 15.0,
-	"demo_reassign_seconds": 6.0
+	"task_work_seconds": 4.0,
+	"default_priority": ["breach", "malfunction"]
 }
