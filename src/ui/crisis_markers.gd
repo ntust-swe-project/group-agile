@@ -9,6 +9,11 @@
 ## - nothing flashes or animates;
 ## - the label is 24 px, drawn above the rooms, and keeps clear of the top-left
 ##   HUD area (x < 400, y < 140).
+##
+## PLACEHOLDER: this look is a stand-in. TODO(008): story 008 (side-view
+## station) replaces it with markers that fit the new art, still following the
+## EPIC.md 房間狀態標示 rules. Only this file changes; it just reads
+## `active_crises`, so the crisis logic and its tests stay as they are.
 extends Control
 
 const ROOM_SIZE: Vector2 = preload("res://src/ui/station_view.gd").ROOM_SIZE
