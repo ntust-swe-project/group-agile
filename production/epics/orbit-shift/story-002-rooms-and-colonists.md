@@ -1,0 +1,103 @@
+# Story 002: 房間與殖民者
+
+> **Epic**: Orbit Shift（軌道值班）MVP
+> **Status**: Complete
+> **Issue**: #13
+> **Layer**: Core
+> **Type**: Logic
+> **Estimate**: M
+> **Manifest Version**: N/A (minimal — no control manifest)
+> **Last Updated**: 2026-11-11
+
+## Context
+
+**GDD**: `design/game-brief.md`
+**Requirement**: Brief MVP feature 2
+
+**ADR Governing Implementation**: N/A (minimal — no ADRs)
+**ADR Decision Summary**: N/A (minimal — no ADRs)
+**ADR Version**: N/A (minimal — no ADRs)
+
+**Engine**: Godot 4.7.2 | **Risk**: HIGH
+**Engine Notes**: none (no ADR engine-compatibility analysis at minimal)
+
+**Control Manifest Rules (this layer)**: N/A (minimal — no control manifest)
+
+---
+
+## Acceptance Criteria
+
+*From `design/game-brief.md`, MVP 2 與 Player goal & fail state:*
+
+- [x] 太空站由 6 個房間組成，房間之間的連接關係從資料檔讀取，其中一間是宿舍
+- [x] 畫面以色塊與文字顯示 6 個房間、連接線，以及每名殖民者目前所在的房間
+- [x] 遊戲開始時有 3 名殖民者，各自有名字與疲勞值
+- [x] 殖民者移動到相鄰房間需花固定秒數（可調參數），移動期間不能工作；到非相鄰房間依連接圖逐間移動
+- [x] 殖民者工作時疲勞上升、在宿舍休息時下降，上升與下降速度為可調參數
+- [x] 疲勞達上限時，殖民者放下手邊工作、自己前往宿舍休息，恢復到門檻以下才回去工作
+- [x] `Station`、`Colonists` 掛在 `src/main.tscn` 底下，`godot --path .` 開起來看得到房間與殖民者移動、疲勞變化
+- [x] 「累垮」＝疲勞達上限後，因為宿舍有未修好的危機（破洞或故障）而無法開始休息，持續超過 N 秒（可調參數）；正常去宿舍休息不算累垮
+- [x] 3 名殖民者同時處於累垮狀態時發出 `Events.colonists_collapsed`（見 `EPIC.md`「整合約定」）
+- [x] 移動邏輯集中在單一元件處理，之後可替換成沿走廊行走（A 方案佔位）而不必改殖民者其他邏輯
+
+---
+
+## Implementation Notes
+
+- 房間圖、殖民者狀態做成可單元測試的邏輯類別；表現層只讀取狀態
+- 累垮的 N 秒寫在資料檔；宿舍是否「有未修好的危機」從 `Events.crisis_started` / `crisis_resolved` 判斷
+
+---
+
+## Out of Scope
+
+- Story 003：殖民者挑選任務的決策（這裡只做「去某房間」與疲勞）
+- 沿走廊行走的移動動畫（範圍外，A 方案佔位）
+
+---
+
+## Files
+
+- `data/orbit_shift/station.json`
+- `src/core/station_map.gd`
+- `src/core/mover.gd`
+- `src/core/colonist.gd`
+- `src/core/colonists.gd`
+- `src/core/station.gd`
+- `src/ui/station_view.gd`
+- `src/ui/station_view.tscn`
+- `src/main.tscn`
+- `src/main.gd`
+- `tests/unit/core/colonist_test.gd`
+
+## QA Test Cases
+
+*N/A — no qa-lead specs at this tier; implement against the Acceptance Criteria above*
+
+---
+
+## Test Evidence
+
+**Story Type**: Logic
+**Required evidence**:
+- Logic: `tests/unit/core/colonist_test.gd` — must exist and pass
+- 太空站畫面截圖保留於 `production/qa/evidence/`
+
+**Status**: [x] Created — `tests/unit/core/colonist_test.gd`（32 tests 通過）、`production/qa/evidence/story-002-rooms-and-colonists/`（2 張截圖＋stamp）
+
+---
+
+## Dependencies
+
+- Depends on: None（失敗判定入口由 `production/epics/orbit-shift/story-001-day-cycle-and-ending.md` 提供，可先用替身接上）
+- Unlocks: `production/epics/orbit-shift/story-003-tasks-and-priorities.md`
+
+---
+
+## Completion Notes
+**Completed**: 2026-11-11
+**Criteria**: 10/10 passing (none deferred)
+**Deviations**: None remaining — the layout advisory (map in the top-left corner) was fixed after PR #20 review: room `pos` in `station.json` scaled to the 1920x1080 window and colonist text stacked from the screen bottom. OUT OF SCOPE — `docs/img/board-example.png.import` was created by the Godot import and is unrelated; do not commit it.
+**Test Evidence**: `tests/unit/core/colonist_test.gd` (32 tests, all passing; empty-roster collapse guard added after PR #20 review); `production/qa/evidence/story-002-rooms-and-colonists/` (station-t01s-moving.png, station-t10s-fatigue.png; recaptured and restamped after the layout fix)
+**Reviewed by**: self, no independent review (/code-review run: APPROVED WITH SUGGESTIONS, suggestions 1–4 applied)
+**Notes for story 003**: the `TODO(003)` placeholder in `src/core/colonists.gd` (`demo_enabled` / `_tick_demo`) must be deleted, or set `demo_enabled = false`, otherwise it overwrites 003's orders every few seconds. Issue orders through `Colonists.command_go_to(index, room_id)`.
