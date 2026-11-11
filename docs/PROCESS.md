@@ -50,8 +50,10 @@ flowchart LR
 | 待 review | 有 `feat/<編號>-…` 的 open PR |
 | 卡住 | label `blocked` |
 | 完成 | closed（PR merge 時由 `Closes #N` 自動關） |
+| 雜項／技術債（不是 story） | open、label `chore`，標題 `[Chore] …`；不在看板上、不用認領，開 `chore/<編號>-…` branch 做 |
 
 - **順序**：標題開頭的 `S01`、`S02`…，數字小的先做。PO 要調順序就改標題編號。
+- **總覽**：置頂的 #31 有依賴流程圖與每張 story 的狀態，由 PO 維護；認領與狀態以 `/board` 和 issue 本身為準。
 - issue 內文第一行 `Story: <story 檔路徑>` 指向 CCGS 的 story 檔；story 檔也寫回 `> **Issue**: #N`。
 - story 檔要先 merge 進 main，組員從 main 開 branch 才讀得到。PO 拆 story 時一樣在 branch 上做（例如 `docs/1-stories`），`/create-stories` → `/publish-stories` → 開 PR。
 
