@@ -1,6 +1,8 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://src/main.gd" id="1_main"]
+[ext_resource type="Script" path="res://src/core/station.gd" id="2_station"]
+[ext_resource type="Script" path="res://src/core/colonists.gd" id="3_colonists"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_main")
@@ -10,8 +12,10 @@ script = ExtResource("1_main")
 [node name="StationIntegrity" type="Node" parent="."]
 
 [node name="Station" type="Node" parent="."]
+script = ExtResource("2_station")
 
 [node name="Colonists" type="Node" parent="."]
+script = ExtResource("3_colonists")
 
 [node name="TaskBoard" type="Node" parent="."]
 

@@ -17,6 +17,7 @@ extends Node
 ## Add a row here when a story needs another system's methods.
 const INJECTIONS := [
 	[^"CrisisDirector", "station_integrity", ^"StationIntegrity"],
+	[^"Station", "colonists", ^"Colonists"],
 ]
 
 
