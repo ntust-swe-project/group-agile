@@ -1,13 +1,13 @@
 # Story 008: 側視艙段（便宜版）
 
 > **Epic**: Orbit Shift（軌道值班）MVP
-> **Status**: Ready
+> **Status**: Complete
 > **Issue**: #28
 > **Layer**: Presentation
 > **Type**: Visual/Feel
 > **Estimate**: M
 > **Manifest Version**: N/A (minimal — no control manifest)
-> **Last Updated**: —
+> **Last Updated**: 2026-11-12
 
 ## Context
 
@@ -58,12 +58,16 @@
 
 ## Files
 
-- `data/orbit_shift/station.json`
-- `src/ui/station_view.gd`
-- `assets/art/station/`（背景與角色素材）
-- `CREDITS.md`
-
----
+- `data/orbit_shift/station.json` — modified (room `pos` only: two floors of three rooms; ids and connections unchanged)
+- `src/ui/station_view.gd` — modified (side-view cutaway rooms, doorways, stairwells drawn after rooms, colonists via ColonistFigure and StationPath)
+- `src/ui/crisis_markers.gd` — rewritten (side-view markers: rings inside the room, labels stacked top-right; TODO(008) removed)
+- `src/ui/station_path.gd` — created (StationPath: view-only waypoints for a hop, stairs between floors)
+- `src/ui/colonist_figure.gd` — created (ColonistFigure: vector silhouette standing / walking / lying; the one place story 009 replaces)
+- `src/ui/station_backdrop.gd` — created (StationBackdrop: layered static space and hull background, no Parallax2D)
+- `CREDITS.md` — created (no external assets)
+- `tests/unit/core/station_path_test.gd` — created (12 tests)
+- `.godot/global_script_class_cache.cfg` — regenerated (new class_names)
+- `production/qa/evidence/story-008-side-view-station/` 01…03 + `stamp.txt`, `production/qa/evidence/story-008-side-view-station-evidence.md` — evidence and sign-off
 
 ## QA Test Cases
 
@@ -77,7 +81,7 @@
 **Required evidence**:
 - Visual/Feel: 改版前後截圖與殖民者跨樓層移動的截圖，保留於 `production/qa/evidence/`，並由負責人簽核
 
-**Status**: [ ] Not yet created
+**Status**: [x] Created — screenshots in `production/qa/evidence/story-008-side-view-station/`, sign-off in `production/qa/evidence/story-008-side-view-station-evidence.md`; `tests/unit/core/station_path_test.gd` (12 tests)
 
 ---
 
@@ -85,3 +89,10 @@
 
 - Depends on: `production/epics/orbit-shift/story-002-rooms-and-colonists.md`, `production/epics/orbit-shift/story-004-escalating-crises.md`, `production/epics/orbit-shift/story-007-colonist-status.md`
 - Unlocks: `production/epics/orbit-shift/story-009-prerendered-colonists.md`
+
+## Completion Notes
+**Completed**: 2026-11-12
+**Criteria**: 9/9 passing (none deferred; the feel of the walk cycle was judged in a play session by the owner)
+**Deviations**: ADVISORY — view constants (room size, colours, stairs position, silhouette size) live in `station_view.gd`, `colonist_figure.gd`, `crisis_markers.gd`, not in a data file; they are looks, not game values. OUT OF SCOPE — the story's `## Files` once listed `assets/art/station/`, unused because everything is code-drawn; `docs/img/board-example.png.import` is unrelated and stays uncommitted. Known limits: lying colonists and stairs can sit under a crisis label in Lab; colonist spots use the global index, so more than 4 colonists would leave the room width.
+**Test Evidence**: `production/qa/evidence/story-008-side-view-station/01…03` + `stamp.txt` (all UNCHANGED), sign-off `production/qa/evidence/story-008-side-view-station-evidence.md` `[x] Approved`; `tests/unit/core/station_path_test.gd` (12); full suite 202/202
+**Reviewed by**: self, no independent review (a godot-gdscript-specialist 4.7 check ran during /dev-story)

@@ -1,4 +1,5 @@
-## Display-only overlay that marks every active crisis on its room (story 004).
+## Display-only overlay that marks every active crisis on its room (story 004,
+## side-view art by story 008).
 ##
 ## Added as a child by the CrisisDirector node; it only reads
 ## `director.active_crises` and `director.station.map` and never changes game
@@ -7,13 +8,11 @@
 ##   dashed), so the two stay distinguishable in grayscale;
 ## - colour is only a secondary cue (colour-blind-safe Okabe-Ito orange / blue);
 ## - nothing flashes or animates;
-## - the label is 24 px, drawn above the rooms, and keeps clear of the top-left
-##   HUD area (x < 400, y < 140).
-##
-## PLACEHOLDER: this look is a stand-in. TODO(008): story 008 (side-view
-## station) replaces it with markers that fit the new art, still following the
-## EPIC.md 房間狀態標示 rules. Only this file changes; it just reads
-## `active_crises`, so the crisis logic and its tests stay as they are.
+## - the label is 24 px and keeps clear of the top-left HUD area (x < 400, y < 140).
+## Side view layout: the outline hugs the inside of the room's cutaway (one more
+## ring per extra crisis), and the label plates stack downward in the room's
+## top-right corner, above the colonist row on the floor, so two crises in one
+## room overlap neither each other nor the colonists.
 extends Control
 
 const ROOM_SIZE: Vector2 = preload("res://src/ui/station_view.gd").ROOM_SIZE
@@ -33,10 +32,10 @@ const BREACH_OUTLINE_WIDTH := 8.0
 ## Malfunction: thinner dashed outline.
 const MALFUNCTION_OUTLINE_WIDTH := 5.0
 const DASH_LENGTH := 12.0
-## Gap between the room edge and its outline, so the room name stays readable.
-const OUTLINE_GAP := 6.0
-## Label baseline, relative to the room centre (below the room name, above the dots).
-const LABEL_BASELINE_OFFSET := 2.0
+## Outline ring k sits this far inside the room edge (centre line of the stroke).
+const OUTLINE_INSET := 6.0
+## Plates start this far from the room's top and right edges, clear of the outline rings.
+const PLATE_MARGIN := Vector2(36.0, 36.0)
 const LABEL_PADDING := 4.0
 const LABEL_STACK_SPACING := 4.0
 const PLATE_COLOR := Color(0.0, 0.0, 0.0, 0.85)
@@ -76,9 +75,9 @@ func _draw() -> void:
 func _draw_marker(center: Vector2, kind: StringName, slot: int) -> void:
 	var color: Color = COLORS.get(kind, Color.WHITE)
 	var width := MALFUNCTION_OUTLINE_WIDTH if kind == CrisisKind.MALFUNCTION else BREACH_OUTLINE_WIDTH
-	# Several crises in one room get nested outlines.
-	var grow := OUTLINE_GAP + slot * (BREACH_OUTLINE_WIDTH + OUTLINE_GAP)
-	var rect := Rect2(center - ROOM_SIZE / 2.0, ROOM_SIZE).grow(grow)
+	# Several crises in one room get nested outlines, each ring inside the last.
+	var inset := OUTLINE_INSET + slot * (BREACH_OUTLINE_WIDTH + OUTLINE_INSET)
+	var rect := Rect2(center - ROOM_SIZE / 2.0, ROOM_SIZE).grow(-inset)
 	if kind == CrisisKind.MALFUNCTION:
 		_draw_dashed_rect(rect, color, width)
 	else:
@@ -86,19 +85,20 @@ func _draw_marker(center: Vector2, kind: StringName, slot: int) -> void:
 	_draw_label(center, kind, slot, color)
 
 
+# Plate [param slot] counts down from the room's top-right corner.
 func _draw_label(center: Vector2, kind: StringName, slot: int, color: Color) -> void:
 	var font := ThemeDB.fallback_font
 	var text: String = LABELS.get(kind, "?")
 	var text_size := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_FONT_SIZE)
-	var plate_height := font.get_height(LABEL_FONT_SIZE) + LABEL_PADDING * 2.0
-	var baseline_y := center.y + LABEL_BASELINE_OFFSET + slot * (plate_height + LABEL_STACK_SPACING)
+	var plate_size := Vector2(text_size.x + LABEL_PADDING * 2.0, font.get_height(LABEL_FONT_SIZE) + LABEL_PADDING * 2.0)
+	var room_top_right := center + Vector2(ROOM_SIZE.x / 2.0, -ROOM_SIZE.y / 2.0)
 	var plate := Rect2(
-		Vector2(center.x - text_size.x / 2.0 - LABEL_PADDING, baseline_y - font.get_ascent(LABEL_FONT_SIZE) - LABEL_PADDING),
-		Vector2(text_size.x + LABEL_PADDING * 2.0, plate_height),
+		Vector2(room_top_right.x - PLATE_MARGIN.x - plate_size.x, room_top_right.y + PLATE_MARGIN.y + slot * (plate_size.y + LABEL_STACK_SPACING)),
+		plate_size,
 	)
 	draw_rect(plate, PLATE_COLOR)
 	draw_rect(plate, color, false, 2.0)
-	draw_string(font, Vector2(plate.position.x + LABEL_PADDING, baseline_y), text, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_FONT_SIZE, Color.WHITE)
+	draw_string(font, Vector2(plate.position.x + LABEL_PADDING, plate.position.y + LABEL_PADDING + font.get_ascent(LABEL_FONT_SIZE)), text, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_FONT_SIZE, Color.WHITE)
 
 
 func _draw_dashed_rect(rect: Rect2, color: Color, width: float) -> void:
