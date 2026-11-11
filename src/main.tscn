@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://src/core/colonists.gd" id="3_colonists"]
 [ext_resource type="Script" path="res://src/core/crisis_director.gd" id="4_crisis_director"]
 [ext_resource type="Script" path="res://src/core/task_board.gd" id="4_task_board"]
+[ext_resource type="Script" path="res://src/core/auto_repair.gd" id="5_auto_repair"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_main")
@@ -31,6 +32,7 @@ script = ExtResource("4_task_board")
 script = ExtResource("4_crisis_director")
 
 [node name="AutoRepair" type="Node" parent="."]
+script = ExtResource("5_auto_repair")
 
 [node name="ResultScreen" type="Node" parent="."]
 

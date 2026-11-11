@@ -1,13 +1,13 @@
 # Story 005: 自動化
 
 > **Epic**: Orbit Shift（軌道值班）MVP
-> **Status**: Ready
+> **Status**: In Progress
 > **Issue**: #16
 > **Layer**: Feature
 > **Type**: Logic
 > **Estimate**: S
 > **Manifest Version**: N/A (minimal — no control manifest)
-> **Last Updated**: —
+> **Last Updated**: 2026-11-12
 
 ## Context
 
@@ -57,9 +57,13 @@
 
 - `src/core/build_points.gd`
 - `src/core/auto_repair_module.gd`
+- `src/core/auto_repair.gd`
+- `src/ui/auto_repair_markers.gd`
+- `src/ui/auto_repair_panel.gd`
+- `assets/data/auto_repair_config.json`
+- `src/main.gd`
+- `src/main.tscn`
 - `tests/unit/core/auto_repair_test.gd`
-
----
 
 ## QA Test Cases
 

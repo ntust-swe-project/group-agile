@@ -1,0 +1,9 @@
+Reviewed-Content-Hash: src/core/build_points.gd be9ee41ae0c5d1005efa25e4e7dfcb0b32951f70
+Reviewed-Content-Hash: src/core/auto_repair_module.gd 16cd9b6f140eb203c49572661caacb71791446bb
+Reviewed-Content-Hash: src/core/auto_repair.gd c282e715fa746b90f910c0677aa2a369de3c8e83
+Reviewed-Content-Hash: src/ui/auto_repair_markers.gd 9de0e07101b9f6d682ccf5d9dd9c2f75ee78fc7d
+Reviewed-Content-Hash: src/ui/auto_repair_panel.gd 763fbd11a1e61273d5a6f2e9e230c5e3f4c8ef81
+Reviewed-Content-Hash: assets/data/auto_repair_config.json b73b98ded1446b76252bb76cdbccedec35e69158
+Reviewed-Content-Hash: src/main.gd 6eea799c4eaca988e90b1e9cf61ccd3ac64f627d
+Reviewed-Content-Hash: src/main.tscn fdd40d2ea95baf51cdf33af3db20bf36a5073c8a
+Reviewed-Content-Hash: tests/unit/core/auto_repair_test.gd 65a3e3bfedf27663b6e42a460e455cde608e48ec

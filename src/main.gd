@@ -21,6 +21,7 @@ const INJECTIONS := [
 	[^"CrisisDirector", "day_cycle", ^"DayCycle"],
 	[^"CrisisDirector", "station", ^"Station"],
 	[^"TaskBoard", "colonists", ^"Colonists"],
+	[^"AutoRepair", "crisis_director", ^"CrisisDirector"],
 ]
 
 
