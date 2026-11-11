@@ -10,18 +10,11 @@ extends Node
 var colonists: Array[Colonist] = []
 ## When true the node ticks itself in _process.
 var auto_tick: bool = true
-## PLACEHOLDER until story 003: cycle colonists through rooms so the demo moves.
-## TODO(003): delete this placeholder (or set demo_enabled = false), otherwise
-## it overwrites 003's orders every demo_reassign_seconds.
-var demo_enabled: bool = true
 
 var _map: StationMap
 var _dorm_crisis_ids := {}
 var _collapse_emitted: bool = false
 var _ended: bool = false
-var _demo_seconds: float
-var _demo_timer: float = 0.0
-var _demo_round: int = 0
 
 
 ## Builds the map and colonists from [param data] (station data file shape).
@@ -29,7 +22,6 @@ var _demo_round: int = 0
 func setup(data: Dictionary) -> void:
 	_map = StationMap.new()
 	_map.setup(data)
-	_demo_seconds = data["demo_reassign_seconds"]
 	for colonist_name: String in data["colonists"]:
 		var mover := Mover.new(_map, StringName(data["start_room"]), data["move_seconds"])
 		colonists.append(Colonist.new(colonist_name, mover, _map.dorm_id, data))
@@ -48,7 +40,7 @@ func _process(delta: float) -> void:
 	tick(delta)
 
 
-## Orders colonist [param index] to work in [param room_id] (story 003 will call this).
+## Orders colonist [param index] to work in [param room_id] (TaskBoard calls this).
 ## Bad input is reported with push_error and ignored.
 func command_go_to(index: int, room_id: StringName) -> void:
 	if index < 0 or index >= colonists.size():
@@ -69,8 +61,6 @@ func dorm_has_unresolved_crisis() -> bool:
 func tick(delta: float) -> void:
 	if _ended:
 		return
-	if demo_enabled:
-		_tick_demo(delta)
 	var dorm_crisis := dorm_has_unresolved_crisis()
 	# An empty roster is not "everyone collapsed"; without this guard it would
 	# emit colonists_collapsed on the first tick and end the game.
@@ -83,19 +73,6 @@ func tick(delta: float) -> void:
 		Events.colonists_collapsed.emit()
 	elif not all_collapsed:
 		_collapse_emitted = false
-
-
-# PLACEHOLDER (remove with story 003): reassign rooms on a timer.
-# TODO(003): delete, or 003's orders get overwritten every demo_reassign_seconds.
-func _tick_demo(delta: float) -> void:
-	if _demo_timer > 0.0:
-		_demo_timer -= delta
-		return
-	_demo_timer = _demo_seconds
-	for i in colonists.size():
-		var room := _map.room_ids[(_demo_round + i * 2) % _map.room_ids.size()]
-		colonists[i].assign_work(room)
-	_demo_round += 1
 
 
 func _on_crisis_started(crisis_id: int, _kind: StringName, room_id: StringName) -> void:

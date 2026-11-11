@@ -18,6 +18,7 @@ extends Node
 const INJECTIONS := [
 	[^"CrisisDirector", "station_integrity", ^"StationIntegrity"],
 	[^"Station", "colonists", ^"Colonists"],
+	[^"TaskBoard", "colonists", ^"Colonists"],
 ]
 
 

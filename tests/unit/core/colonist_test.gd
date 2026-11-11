@@ -24,7 +24,6 @@ const DATA := {
 	"fatigue_fall_per_sec": 20.0,
 	"rest_threshold": 40.0,
 	"collapse_seconds": 5.0,
-	"demo_reassign_seconds": 1.0,
 }
 
 
@@ -42,7 +41,6 @@ func _colonist(start_room: StringName = &"a") -> Colonist:
 func _colonists_node() -> Node:
 	var node: Node = auto_free(COLONISTS_SCRIPT.new())
 	node.auto_tick = false
-	node.demo_enabled = false
 	node.setup(DATA)
 	add_child(node)
 	return node
@@ -311,7 +309,6 @@ func test_colonists_collapsed_not_emitted_when_roster_is_empty() -> void:
 	data["colonists"] = []
 	var node: Node = auto_free(COLONISTS_SCRIPT.new())
 	node.auto_tick = false
-	node.demo_enabled = false
 	node.setup(data)
 	add_child(node)
 	var emitted := [0]
@@ -433,6 +430,25 @@ func test_walk_to_dorm_during_dorm_crisis_does_not_count_toward_collapse() -> vo
 	assert_bool(colonist.is_collapsed()).is_false()
 	colonist.tick(0.5, true)
 	assert_bool(colonist.is_collapsed()).is_true()
+
+
+func test_clear_work_makes_working_colonist_idle_and_resting_colonist_idle_after_rest() -> void:
+	# Arrange: one colonist working in b, one exhausted and resting in the dorm
+	var worker := _colonist(&"b")
+	worker.assign_work(&"b")
+	var sleeper := _colonist(&"dorm")
+	sleeper.fatigue = 100.0
+	sleeper.assign_work(&"b")
+	sleeper.tick(0.0, false)
+	# Act
+	worker.clear_work()
+	sleeper.clear_work()
+	sleeper.tick(4.0, false)
+	# Assert: rest ended (100 -> 20) and no old room to walk back to
+	assert_int(worker.state).is_equal(Colonist.State.IDLE)
+	assert_str(worker.work_room).is_empty()
+	assert_int(sleeper.state).is_equal(Colonist.State.IDLE)
+	assert_bool(sleeper.mover.is_moving()).is_false()
 
 
 func test_command_go_to_unknown_room_reports_error_and_leaves_colonist_unchanged() -> void:

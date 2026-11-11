@@ -66,6 +66,15 @@ func assign_work(room_id: StringName) -> void:
 	mover.start_move(room_id)
 
 
+## Forgets the work room (story 003: the task is done or was released). A
+## working colonist becomes idle where it stands; a resting one keeps resting
+## and ends idle instead of returning to the old room.
+func clear_work() -> void:
+	work_room = &""
+	if state == State.WORKING:
+		state = State.IDLE
+
+
 ## True when collapsed (see class description).
 func is_collapsed() -> bool:
 	return state == State.RESTING and not mover.is_moving() and not _rest_started \
