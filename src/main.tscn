@@ -1,13 +1,18 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://src/main.gd" id="1_main"]
+[ext_resource type="Script" path="res://src/core/day_cycle.gd" id="2_day_cycle"]
+[ext_resource type="Script" path="res://src/core/station_integrity.gd" id="3_integrity"]
+[ext_resource type="Script" path="res://src/ui/hud.gd" id="4_hud"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_main")
 
 [node name="DayCycle" type="Node" parent="."]
+script = ExtResource("2_day_cycle")
 
 [node name="StationIntegrity" type="Node" parent="."]
+script = ExtResource("3_integrity")
 
 [node name="Station" type="Node" parent="."]
 
@@ -20,3 +25,12 @@ script = ExtResource("1_main")
 [node name="AutoRepair" type="Node" parent="."]
 
 [node name="ResultScreen" type="Node" parent="."]
+
+[node name="Hud" type="CanvasLayer" parent="."]
+script = ExtResource("4_hud")
+
+[node name="StatusLabel" type="Label" parent="Hud"]
+offset_left = 24.0
+offset_top = 16.0
+theme_override_font_sizes/font_size = 40
+text = "Day 1 / 30"

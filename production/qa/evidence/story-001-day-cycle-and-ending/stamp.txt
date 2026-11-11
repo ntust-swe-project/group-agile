@@ -1,0 +1,7 @@
+Reviewed-Content-Hash: src/core/game_config.gd 7e3af6cb3dd152700231c50f7c7426fcdf5cae4f
+Reviewed-Content-Hash: src/core/day_cycle.gd 0fa17172141fb76e9328dd036076ae2852601c9d
+Reviewed-Content-Hash: src/core/station_integrity.gd a9b73ce24759fc1891ee812aff176efc05f1e7bc
+Reviewed-Content-Hash: src/ui/hud.gd 3c25237d1323f7e00b5e3f73effffbfa1a38ae4d
+Reviewed-Content-Hash: src/main.tscn cbe2b496c6f548f5466be862586f270c6a4a5f15
+Reviewed-Content-Hash: assets/data/game_config.json 3a2d220e8ef4f6871980a5eb5e91ac84b7358b63
+Reviewed-Content-Hash: tests/unit/core/day_cycle_test.gd f8604272f6935fc6a568b74c593898c68f3ad02c
