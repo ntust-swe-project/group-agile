@@ -19,9 +19,12 @@ extends Node
 const CURVE_PATH := "res://assets/data/crisis_curve.tres"
 const MARKERS := preload("res://src/ui/crisis_markers.gd")
 
-## Tunables (curve, damage rates, timing); loaded from [constant CURVE_PATH]
+## Tunables (curve, damage rates, timing); loaded from [member curve_path]
 ## in _ready unless a test already set it.
 var curve: CrisisCurve
+## Where _ready loads [member curve] from. A file that is missing or not a
+## [CrisisCurve] is reported with push_error; the run then has no crises.
+var curve_path: String = CURVE_PATH
 ## Seconds per day when no `day_cycle` supplies one. Same default as DayCycle.
 var day_length: float = 60.0
 ## When true the node ticks itself in _process.
@@ -63,7 +66,10 @@ func setup(p_curve: CrisisCurve, p_room_ids: Array[StringName]) -> void:
 
 func _ready() -> void:
 	if curve == null:
-		curve = load(CURVE_PATH) as CrisisCurve
+		if ResourceLoader.exists(curve_path):
+			curve = load(curve_path) as CrisisCurve
+		if curve == null:
+			push_error("CrisisDirector: cannot load crisis curve from %s; no crises will be scheduled" % curve_path)
 	if _room_ids.is_empty():
 		var map := StationMap.new()
 		map.setup(StationMap.load_data())
@@ -93,8 +99,13 @@ func tick(delta: float) -> void:
 	while not _pending.is_empty() and _pending[0][0] <= _clock:
 		var due: Array = _pending.pop_front()
 		_fire(due[1], due[0])
-	for crisis_id: int in active_crises:
-		_apply_damage_for(active_crises[crisis_id])
+	# Iterate a snapshot: apply_damage can end the game or resolve a crisis
+	# synchronously (story 001 emits game_ended when integrity reaches 0).
+	for crisis: Crisis in active_crises.values():
+		if _ended:
+			return
+		if active_crises.has(crisis.id):
+			_apply_damage_for(crisis)
 
 
 func _fire(crisis: Crisis, fire_at: float) -> void:

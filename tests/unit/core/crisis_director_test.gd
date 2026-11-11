@@ -11,6 +11,7 @@ const MALFUNCTION_RATE := 0.5
 const MIN_DELAY := 4.0
 const LATE_DAY := 20
 const EPSILON := 0.0001
+const MISSING_CURVE_PATH := "res://tests/fixtures/crisis/does_not_exist.tres"
 
 var _started: Array = []
 var _resolved: Array = []
@@ -80,6 +81,16 @@ func _fake_integrity() -> Node:
 	var fake: Node = auto_free(Node.new())
 	fake.set_script(_make_script(
 		"extends Node\nvar calls: Array = []\nfunc apply_damage(amount: float) -> void:\n\tcalls.append(amount)\n"
+	))
+	return fake
+
+
+# Like _fake_integrity, but every call ends the game, as StationIntegrity does
+# when it reaches 0 (story 001: DayCycle emits game_ended synchronously).
+func _fake_integrity_that_ends_the_game() -> Node:
+	var fake: Node = auto_free(Node.new())
+	fake.set_script(_make_script(
+		"extends Node\nvar calls: Array = []\nfunc apply_damage(amount: float) -> void:\n\tcalls.append(amount)\n\tEvents.game_ended.emit(false, &\"integrity\")\n"
 	))
 	return fake
 
@@ -334,15 +345,20 @@ func test_day_started_alone_fires_and_damages_nothing() -> void:
 
 
 func test_nothing_fires_before_the_minimum_start_delay() -> void:
-	# Arrange
+	# Arrange — a collapsed window puts every crisis exactly at the delay
+	var curve := _curve()
+	curve.latest_start_day_fraction = 0.0
 	var integrity := _fake_integrity()
-	var director := _director(_curve(), integrity)
+	var director := _director(curve, integrity)
 	Events.day_started.emit(LATE_DAY)
 	# Act
 	director.tick(MIN_DELAY - 0.01)
+	var started_before_delay := _started.size()
+	director.tick(0.01)
 	# Assert
-	assert_array(_started).is_empty()
+	assert_int(started_before_delay).is_equal(0)
 	assert_array(integrity.calls).is_empty()
+	assert_int(_started.size()).is_equal(_scheduled(LATE_DAY, curve).size())
 
 
 # --- AC: escalation and daily minimum, reproducibility ---
@@ -490,6 +506,55 @@ func test_game_ended_ignores_later_task_completed() -> void:
 
 
 # --- integration seams ---
+
+func test_two_active_crises_damage_together_and_resolve_independently() -> void:
+	# Arrange — day 3 has two breaches; tick until both have fired
+	var curve := _breach_only_curve()
+	var crises := _scheduled(3, curve)
+	assert_int(crises.size()).is_equal(2)
+	var integrity := _fake_integrity()
+	var director := _director(curve, integrity)
+	Events.day_started.emit(3)
+	director.tick(crises[1].start_seconds)
+	# Act — one second with both, resolve the first, one second with one
+	var before_both := _total(integrity)
+	director.tick(1.0)
+	var with_both := _total(integrity) - before_both
+	Events.task_completed.emit(0, crises[0].id)
+	var before_one := _total(integrity)
+	director.tick(1.0)
+	var with_one := _total(integrity) - before_one
+	# Assert
+	assert_float(with_both).is_equal_approx(2.0 * BREACH_RATE, EPSILON)
+	assert_float(with_one).is_equal_approx(BREACH_RATE, EPSILON)
+	assert_array(_resolved).is_equal([crises[0].id])
+	assert_bool(director.active_crises.has(crises[1].id)).is_true()
+
+
+func test_game_ended_during_damage_stops_the_remaining_crises_in_the_same_tick() -> void:
+	# Arrange — day 3 has two breaches; the first apply_damage ends the game
+	var curve := _breach_only_curve()
+	var crises := _scheduled(3, curve)
+	assert_int(crises.size()).is_equal(2)
+	var integrity := _fake_integrity_that_ends_the_game()
+	var director := _director(curve, integrity)
+	Events.day_started.emit(3)
+	# Act — one tick in which both crises fire and are billed
+	director.tick(crises[1].start_seconds + 1.0)
+	# Assert — the second crisis is not billed after the loss
+	assert_int(integrity.calls.size()).is_equal(1)
+
+
+func test_missing_curve_file_reports_an_error_instead_of_running_silently() -> void:
+	# Arrange
+	var director: Node = auto_free(DIRECTOR_SCRIPT.new())
+	director.auto_tick = false
+	director.run_seed = SEED
+	director.curve_path = MISSING_CURVE_PATH
+	# Act / Assert
+	await assert_error(func() -> void: add_child(director)) \
+		.is_push_error("CrisisDirector: cannot load crisis curve from %s; no crises will be scheduled" % MISSING_CURVE_PATH)
+
 
 func test_day_length_is_read_from_an_injected_day_cycle_when_it_has_one() -> void:
 	# Arrange — a 10 s day: every crisis must fall inside 0.75 * 10 s

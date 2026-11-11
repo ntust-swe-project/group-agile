@@ -216,12 +216,14 @@ func test_schedule_times_stay_inside_the_allowed_window_and_are_sorted() -> void
 
 func test_schedule_never_fires_at_time_zero_even_when_data_says_zero_delay() -> void:
 	# Arrange
+	# — and a collapsed window, so every crisis sits exactly on the floor
 	var curve := _curve()
 	curve.min_start_delay_seconds = 0.0
+	curve.latest_start_day_fraction = 0.0
 	# Act / Assert
 	for day in range(1, LAST_DAY + 1):
 		for crisis in _schedule(day, SEED_A, curve):
-			assert_float(crisis.start_seconds).is_greater(0.0)
+			assert_float(crisis.start_seconds).is_equal_approx(CrisisScheduler.MIN_START_DELAY_FLOOR, 0.000001)
 
 
 func test_schedule_short_day_still_respects_the_minimum_delay() -> void:
