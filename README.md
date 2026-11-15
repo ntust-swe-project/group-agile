@@ -76,7 +76,7 @@ godot --headless -s -d --remote-debug tcp://127.0.0.1:0 res://addons/gdUnit4/bin
 
 ## 團隊流程
 
-開發流程、角色、完成的定義、會被擋下的動作都在 [`docs/PROCESS.md`](docs/PROCESS.md)。用 Claude Code 開啟本 repo 時，session 會自動顯示團隊看板（你手上的卡、可以拿的卡），並在不符流程時擋下。常用指令：`/board`、`/claim-story`、`/ship-story`。
+開發流程、角色、完成的定義、會被擋下的動作都在 [`docs/PROCESS.md`](docs/PROCESS.md)。用 Claude Code 開啟本 repo 時，session 會自動顯示團隊看板（你手上的卡、可以拿的卡），並在不符流程時擋下。常用指令：`/board`、`/claim-story`、`/unclaim-story`、`/ship-story`。
 
 ## main 的規則
 

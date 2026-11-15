@@ -228,6 +228,135 @@ class Guard(unittest.TestCase):
             self.assertEqual(self.bash("git checkout -b feat/13-x")[0], "ask")
 
 
+class Unclaim(unittest.TestCase):
+    """/unclaim-story: only your own card, a reason is recorded, nothing is lost."""
+
+    def setUp(self):
+        self.branch = "feat/12-crisis-wave"
+        self.issues = {12: issue(12, ["alice"], title="S03 crisis"), 13: issue(13), 14: issue(14, ["bob"])}
+        self.prs, self.remote, self.dirty, self.ahead = [], [], "", ""
+        self.local = "main\nfeat/12-crisis-wave"
+        self.writes, self.ran, self.printed = [], [], []
+        patches = [
+            mock.patch.object(team, "current_branch", lambda: self.branch),
+            mock.patch.object(team, "me", lambda: "alice"),
+            mock.patch.object(team, "repo_slug", lambda: "o/r"),
+            mock.patch.object(team, "gh_api", self.fake_gh),
+            mock.patch.object(team, "git", self.fake_git),
+            mock.patch.object(team, "run", self.fake_run),
+            mock.patch.object(team, "out", self.printed.append),
+        ]
+        for p in patches:
+            p.start()
+            self.addCleanup(p.stop)
+
+    def fake_git(self, *args):
+        if args[0] == "status":
+            return self.dirty
+        if args[0] == "branch":
+            return self.local
+        if args[0] == "log":
+            return self.ahead
+        if args[0] == "rev-parse":
+            return "localsha"
+        return ""
+
+    def fake_run(self, cmd, timeout=15, stdin=None):
+        self.ran.append(cmd)
+        return subprocess.CompletedProcess(cmd, 0, "", "")
+
+    def fake_gh(self, path, method="GET", body=None, timeout=15):
+        p = path.split("?")[0]
+        if method != "GET":
+            self.writes.append((method, p, body))
+        if p.endswith("/assignees"):
+            i = self.issues[int(p.split("/")[-2])]
+            i["assignees"] = [a for a in i["assignees"] if a["login"] not in body["assignees"]]
+            return i
+        if p.endswith(("/comments", "/labels")):
+            return {}
+        if p == "repos/o/r/issues":
+            return list(self.issues.values())
+        if p.startswith("repos/o/r/issues/"):
+            return self.issues[int(p.rsplit("/", 1)[-1])]
+        if p.endswith("/pulls"):
+            return self.prs
+        if p.endswith("/branches"):
+            return self.remote
+        raise AssertionError(path)
+
+    def unclaim(self, *args):
+        return team.cmd_unclaim(list(args))
+
+    def test_reason_required(self):
+        self.assertEqual(self.unclaim("12", "--note", "x"), 2)
+        self.assertEqual(self.unclaim("12", "--reason", "bored", "--note", "x"), 2)
+        self.assertEqual(self.unclaim("12", "--reason", "blocked"), 2)
+        self.assertEqual(self.writes, [])
+
+    def test_only_your_own(self):
+        self.assertEqual(self.unclaim("14", "--reason", "capacity", "--note", "x"), 1)
+        self.assertEqual(self.writes, [])
+
+    def test_open_pr(self):
+        self.prs = [{"number": 5, "head": {"ref": "feat/12-crisis-wave"}}]
+        self.assertEqual(self.unclaim("--reason", "capacity", "--note", "x"), 1)
+        self.assertIn("PR #5", self.printed[-1])
+        self.assertEqual(self.writes, [])
+
+    def test_uncommitted(self):
+        self.dirty = " M src/a.gd"
+        self.assertEqual(self.unclaim("--reason", "capacity", "--note", "x"), 1)
+        self.assertEqual(self.writes, [])
+
+    def test_unpushed_commits(self):
+        self.ahead = "abc\ndef"
+        self.assertEqual(self.unclaim("--reason", "capacity", "--note", "x"), 1)
+        self.assertIn("git push -u origin feat/12-crisis-wave", self.printed[-1])
+        self.remote = [{"name": "feat/12-crisis-wave", "commit": {"sha": "localsha"}}]
+        self.assertEqual(self.unclaim("--reason", "capacity", "--note", "x"), 0)
+
+    def test_blocked(self):
+        self.assertEqual(self.unclaim("--reason", "blocked", "--note", "waiting on #13"), 0)
+        methods = [(m, p) for m, p, _ in self.writes]
+        self.assertEqual(methods, [("POST", "repos/o/r/issues/12/comments"), ("POST", "repos/o/r/issues/12/labels"),
+                                   ("DELETE", "repos/o/r/issues/12/assignees")])
+        comment = self.writes[0][2]["body"]
+        self.assertIn(team.UNCLAIM_MARK, comment)
+        self.assertIn("waiting on #13", comment)
+        self.assertIn("S03", comment)
+        self.assertEqual(self.writes[2][2], {"assignees": ["alice"]})
+        self.assertIn(["git", "switch", "main"], self.ran)
+
+    def test_priority_asks_po(self):
+        self.branch = "main"
+        self.assertEqual(self.unclaim("12", "--reason", "priority", "--note", "x"), 0)
+        self.assertEqual([p for _, p, _ in self.writes if p.endswith("/labels")], [])
+        self.assertIn("PO", self.writes[0][2]["body"])
+        self.assertNotIn(["git", "switch", "main"], self.ran)
+
+    def test_pushed_work_is_named(self):
+        self.remote = [{"name": "feat/12-crisis-wave", "commit": {"sha": "abc"}}]
+        self.unclaim("--reason", "capacity", "--note", "x")
+        self.assertIn("`feat/12-crisis-wave`", self.writes[0][2]["body"])
+
+
+class Stale(unittest.TestCase):
+    def test_idle_days_uses_newest_signal(self):
+        events = [{"event": "assigned", "created_at": "2026-11-10T00:00:00Z"},
+                  {"event": "labeled", "created_at": "2026-11-14T00:00:00Z"}]
+
+        def gh(path, method="GET", body=None, timeout=15):
+            if "/events" in path:
+                return events
+            return {"commit": {"committer": {"date": "2026-11-12T00:00:00Z"}}}
+        fixed = team.datetime(2026, 11, 15, tzinfo=team.timezone.utc)
+        with mock.patch.object(team, "gh_api", gh), mock.patch.object(team, "repo_slug", lambda: "o/r"), \
+                mock.patch.object(team, "now", lambda: fixed):
+            self.assertEqual(team.idle_days(issue(12, ["alice"]), {}), 5)
+            self.assertEqual(team.idle_days(issue(12, ["alice"]), {12: ("feat/12-x", "abc")}), 3)
+
+
 class SkillInjections(unittest.TestCase):
     """Each !`command` a skill injects must match one of its allowed-tools.
 
@@ -239,7 +368,7 @@ class SkillInjections(unittest.TestCase):
     def test_injected_commands_are_allowed(self):
         import fnmatch
         skills = team.ROOT / ".claude/skills"
-        for name in ("board", "claim-story", "ship-story", "publish-stories"):
+        for name in ("board", "claim-story", "unclaim-story", "ship-story", "publish-stories"):
             text = (skills / name / "SKILL.md").read_text(encoding="utf-8")
             allowed = re.search(r"^allowed-tools:\s*(.*)$", text, re.M).group(1)
             patterns = re.findall(r"Bash\((.*?)\)(?:,|$)", allowed)

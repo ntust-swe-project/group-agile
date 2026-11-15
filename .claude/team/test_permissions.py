@@ -11,7 +11,8 @@ Three layers:
   3. Runtime    every command team.py actually runs, across all its entry points,
                 is on an allowlist: read-only git plus fetch/switch, `gh api` with
                 GET, and only these writes on GitHub: assign/unassign *yourself*,
-                open an issue, create a label.
+                open an issue, create a label, comment on an issue, add a label
+                to an issue (the last two only for /unclaim-story's record).
 
 Changing what is allowed means editing this file or the baseline, both of which
 are guard files: process-check then requires an approval from someone other
@@ -120,7 +121,7 @@ class Static(unittest.TestCase):
                 return fn.name
         return None
 
-    ALLOWED_IMPORTS = {"json", "os", "re", "shlex", "subprocess", "sys", "concurrent.futures", "pathlib"}
+    ALLOWED_IMPORTS = {"json", "os", "re", "shlex", "subprocess", "sys", "concurrent.futures", "pathlib", "datetime"}
 
     def test_imports(self):
         for node in ast.walk(self.tree):
@@ -169,7 +170,11 @@ GH_WRITES = [
     ("DELETE", re.compile(r"^repos/o/r/issues/\d+/assignees$")),
     ("POST", re.compile(r"^repos/o/r/issues$")),
     ("POST", re.compile(r"^repos/o/r/labels$")),
+    ("POST", re.compile(r"^repos/o/r/issues/\d+/comments$")),
+    ("POST", re.compile(r"^repos/o/r/issues/\d+/labels$")),
 ]
+# fetch: main, or one story branch into its own remote-tracking ref (claim continues a pushed branch)
+FETCH_STORY_RE = re.compile(r"^\+refs/heads/((?:feat|fix)/\d+-[a-z0-9-]+):refs/remotes/origin/\1$")
 ME = "alice"
 
 
@@ -247,6 +252,14 @@ class FakeWorld:
             return {"check_runs": []}
         if p.endswith("/labels"):
             return [] if method == "GET" else {}
+        if p == "repos/o/r/branches":
+            return [{"name": "feat/13-second", "commit": {"sha": "c0ffee"}}]
+        if re.match(r"repos/o/r/issues/\d+/events$", p):
+            return [{"event": "assigned", "created_at": "2026-11-01T00:00:00Z"}]
+        if re.match(r"repos/o/r/issues/\d+/comments$", p):
+            return {"id": 1}
+        if re.match(r"repos/o/r/commits/\w+$", p):
+            return {"commit": {"committer": {"date": "2026-11-02T00:00:00Z"}}}
         raise AssertionError("unexpected gh api %s %s" % (method, path))
 
 
@@ -279,6 +292,15 @@ class Runtime(unittest.TestCase):
         self.world.issues[12]["assignees"] = []
         self.world.issues[13]["assignees"] = [{"login": "bob"}]
         team.cmd_claim(["13", "--po-ok"])      # refused: someone else's
+        team.cmd_unclaim(["13", "--reason", "blocked", "--note", "x"])   # refused: someone else's
+        self.world.issues[12]["assignees"] = [{"login": ME}]
+        self.world.branch = "feat/12-first"
+        team.cmd_unclaim(["--reason", "blocked", "--note", "waiting on #13"])   # comment, label, unassign, switch
+        self.world.issues[13]["assignees"] = []
+        self.world.branch = "main"
+        team.cmd_claim(["13", "--po-ok"])      # continues origin's feat/13-second
+        team.cmd_board([])                     # stale check on a held story
+        self.world.issues[13]["assignees"] = [{"login": "bob"}]
         epic = ROOT / "production/epics/zz-permission-test"
         epic.mkdir(parents=True, exist_ok=True)
         self.addCleanup(shutil.rmtree, epic, True)
@@ -294,13 +316,22 @@ class Runtime(unittest.TestCase):
     def test_every_command_is_allowed(self):
         self.exercise_everything()
         self.assertTrue(self.world.calls)
+        writes = [(c[3], c[6].split("?")[0]) for c, _ in self.world.calls if c[:2] == ["gh", "api"] and c[3] != "GET"]
+        for expected in (("POST", "repos/o/r/issues/12/comments"), ("POST", "repos/o/r/issues/12/labels"),
+                         ("DELETE", "repos/o/r/issues/12/assignees")):
+            self.assertIn(expected, writes, "exercise_everything 沒有走到 %s %s" % expected)
+        self.assertNotIn(("POST", "repos/o/r/issues/13/comments"), writes, "不能在別人的卡上留退卡紀錄")
+        self.assertIn(["git", "fetch", "origin", "+refs/heads/feat/13-second:refs/remotes/origin/feat/13-second"],
+                      [c for c, _ in self.world.calls], "claim 沒有接手 origin 上的 branch")
         for cmd, stdin in self.world.calls:
             if cmd[0] == "git":
                 self.assertIn(cmd[1], GIT_ALLOWED, "team.py 執行了未允許的 git 指令：%s" % cmd)
                 if cmd[1] == "branch":
                     self.assertTrue(all(a.startswith("--format") for a in cmd[2:]), "git branch 只能用來列出：%s" % cmd)
                 if cmd[1] == "fetch":
-                    self.assertEqual(cmd[2:], ["origin", "main"])
+                    self.assertEqual(cmd[2], "origin")
+                    self.assertEqual(len(cmd), 4, cmd)
+                    self.assertTrue(cmd[3] == "main" or FETCH_STORY_RE.match(cmd[3]), "fetch 只能抓 main 或 story branch：%s" % cmd)
                 if cmd[1] == "switch":
                     self.assertNotIn("--discard-changes", cmd)
                     self.assertNotIn("--force", cmd)
