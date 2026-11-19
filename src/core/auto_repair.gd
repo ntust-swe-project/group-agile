@@ -21,6 +21,9 @@ const PANEL := preload("res://src/ui/auto_repair_panel.gd")
 ## Keys that must be present in the config; numeric and greater than 0.
 const REQUIRED_KEYS: Array[String] = ["points_per_day", "module_cost", "repair_seconds"]
 
+## Keys that must be whole numbers (repair_seconds may be fractional).
+const INTEGER_KEYS: Array[String] = ["points_per_day", "module_cost"]
+
 ## Task id used in [signal Events.task_completed] for a module repair.
 const MODULE_TASK_ID := -1
 
@@ -58,6 +61,9 @@ static func validate(data: Variant) -> String:
 			return "'%s' must be a number" % key
 		if value <= 0:
 			return "'%s' must be greater than 0" % key
+		# JSON.parse_string yields floats even for "2", so accept whole-number floats.
+		if key in INTEGER_KEYS and typeof(value) == TYPE_FLOAT and value != floorf(value):
+			return "'%s' must be a whole number" % key
 	return ""
 
 
@@ -89,6 +95,7 @@ func _ready() -> void:
 	if build_points == null:
 		var config := load_config()
 		if config.is_empty():
+			set_process(false)
 			return
 		var station_map := StationMap.new()
 		station_map.setup(StationMap.load_data())

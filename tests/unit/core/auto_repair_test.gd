@@ -4,6 +4,7 @@
 extends GdUnitTestSuite
 
 const AUTO_REPAIR_SCRIPT := preload("res://src/core/auto_repair.gd")
+const CRISIS_DIRECTOR_SCRIPT := preload("res://src/core/crisis_director.gd")
 const COST := 2
 const REPAIR_SECONDS := 10.0
 const POINTS_PER_DAY := 1
@@ -267,6 +268,20 @@ func test_malfunction_in_room_without_module_is_ignored() -> void:
 	assert_array(_completed).is_empty()
 
 
+func test_build_picks_up_malfunction_already_active_in_room() -> void:
+	var node := _node()
+	# Never added to the tree, so its _ready does not run; only active_crises is used.
+	var director: Node = auto_free(CRISIS_DIRECTOR_SCRIPT.new())
+	director.active_crises[CRISIS_ID] = Crisis.new(CRISIS_ID, CrisisKind.MALFUNCTION, &"lab")
+	node.crisis_director = director
+	_earn_days(COST)
+
+	node.build(&"lab")
+	node.tick(REPAIR_SECONDS)
+
+	assert_array(_completed).contains_exactly([[AUTO_REPAIR_SCRIPT.MODULE_TASK_ID, CRISIS_ID]])
+
+
 func test_nothing_happens_after_game_ended() -> void:
 	var node := _node_with_lab_module()
 	Events.crisis_started.emit(CRISIS_ID, CrisisKind.MALFUNCTION, &"lab")
@@ -297,3 +312,30 @@ func test_validate_rejects_non_positive_value() -> void:
 	config["module_cost"] = 0
 
 	assert_str(AUTO_REPAIR_SCRIPT.validate(config)).contains("module_cost")
+
+
+func test_validate_rejects_fractional_points_per_day() -> void:
+	var config := _config()
+	config["points_per_day"] = 1.5
+
+	assert_str(AUTO_REPAIR_SCRIPT.validate(config)).contains("points_per_day")
+
+
+func test_validate_rejects_fractional_module_cost() -> void:
+	var config := _config()
+	config["module_cost"] = 2.5
+
+	assert_str(AUTO_REPAIR_SCRIPT.validate(config)).contains("module_cost")
+
+
+func test_validate_rejects_string_value() -> void:
+	var config := _config()
+	config["points_per_day"] = "1"
+
+	assert_str(AUTO_REPAIR_SCRIPT.validate(config)).contains("points_per_day")
+
+
+func test_validate_accepts_whole_number_floats_as_json_parses_them() -> void:
+	var config := {"points_per_day": 1.0, "module_cost": 2.0, "repair_seconds": 7.5}
+
+	assert_str(AUTO_REPAIR_SCRIPT.validate(config)).is_empty()
