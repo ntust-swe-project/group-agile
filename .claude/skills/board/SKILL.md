@@ -15,4 +15,5 @@ allowed-tools: Bash(bash .claude/team/team.sh board*), Bash(bash "*/.claude/skil
 1. 用繁體中文、幾行字回答使用者：**你手上有什麼**、**下一張可以拿的是哪張**、**其他人在做什麼**、**有沒有 PR 等你 review**。
 2. 最後一行照看板的「下一步」給一個具體建議（例如「用 `/claim-story` 認領 #13」）。
 3. 只講看板上有的內容，不要自己補 story。看板顯示 `NOT ASSESSED` 時，說明原因（多半是 `gh` 沒裝或沒 `gh auth login`）並請使用者修好，不要猜狀態。
-4. 規則依據：`docs/PROCESS.md`。
+4. 卡片後面有 ⚠（超過 2 天沒有進度）或 `[blocked]` 時要說出來：是使用者自己的卡，就問還做得下去嗎，做不下去建議 `/unclaim-story`；是別人的卡，只提醒在每日同步時問，不要建議去改別人的 assign。
+5. 規則依據：`docs/PROCESS.md`。

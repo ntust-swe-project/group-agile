@@ -7,6 +7,10 @@ follow them:
   board          the team board from GitHub Issues (what you hold, what is free)
   session-start  the board, printed into a new session's context (SessionStart hook)
   claim [N]      claim a story: WIP check, assign on GitHub, create feat/N-<slug>
+                 (or continue the branch someone pushed before giving the story back)
+  unclaim [N] --reason R --note T
+                 give your story back to the backlog: record why on the issue,
+                 label blocked if it is stuck, unassign yourself, switch to main
   preflight      definition-of-done check before a PR is opened
   publish DIR    PO only: open one GitHub issue per story file in an epic folder
   hook-pretool   PreToolUse hook: blocks steps that break the process
@@ -23,6 +27,7 @@ import shlex
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -46,6 +51,16 @@ AI_LOG_DIR = "docs/ai-log"
 # someone other than its author before process-check goes green.
 GUARD_FILES = (".claude/team/", ".claude/settings.json", ".claude/hooks/", ".github/workflows/")
 TAG = "【團隊流程】"
+# A claimed story with no PR, no new assignment and no pushed commit for this
+# many days is flagged on the board. Nobody is unassigned automatically.
+STALE_DAYS = 2
+UNCLAIM_REASONS = {
+    "blocked": "卡住：等前置 story 或技術問題",
+    "too-big": "太大，要拆",
+    "priority": "優先順序變了",
+    "capacity": "個人時間不夠",
+}
+UNCLAIM_MARK = "<!-- group-agile:unclaim -->"
 
 PASS, FAIL, NA = "PASS", "FAIL", "NOT ASSESSED"
 
@@ -143,6 +158,38 @@ def order_key(issue):
     return (0, int(m.group(1)), issue["number"]) if m else (1, 0, issue["number"])
 
 
+def remote_story_branches():
+    """{issue number: (branch name, head sha)} for feat/ and fix/ branches on origin."""
+    found = {}
+    for b in gh_api("repos/%s/branches?per_page=100" % repo_slug()) or []:
+        btype, n = branch_issue(b["name"])
+        if n and btype in STORY_BRANCH_TYPES:
+            found[n] = (b["name"], b["commit"]["sha"])
+    return found
+
+
+def local_branches_for(number):
+    return [b for b in (git("branch", "--format=%(refname:short)") or "").split() if branch_issue(b)[1] == number]
+
+
+def now():
+    return datetime.now(timezone.utc)
+
+
+def idle_days(issue, remote):
+    """Days since the last sign of progress: the newest assignment or pushed commit."""
+    repo = repo_slug()
+    times = [e["created_at"] for e in gh_api("repos/%s/issues/%d/events?per_page=100" % (repo, issue["number"])) or []
+             if e.get("event") == "assigned"]
+    if issue["number"] in remote:
+        commit = gh_api("repos/%s/commits/%s" % (repo, remote[issue["number"]][1]))
+        times.append(commit["commit"]["committer"]["date"])
+    if not times:
+        return None
+    last = datetime.strptime(max(times), "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+    return (now() - last).total_seconds() / 86400
+
+
 def story_path_of(issue):
     m = re.search(r"^\s*Story\s*[:：]\s*`?([^`\s]+\.md)`?", issue.get("body") or "", re.M)
     return m.group(1) if m else None
@@ -176,7 +223,7 @@ def wip_problem(number):
         return "#%d 還沒有人認領。先用 `/claim-story %d` 認領（會 assign 給你並開好 branch）。" % (number, number)
     others = my_open_stories(exclude=number) if STORY_LABEL in labels(issue) else []
     if others:
-        return "你手上已經有 %s 在進行中，每人同時最多 1 張。先把它做完（/ship-story），或請 PO 把它退回 backlog。" % (
+        return "你手上已經有 %s 在進行中，每人同時最多 1 張。先把它做完（/ship-story），或用 /unclaim-story 退回 backlog。" % (
             "、".join("#%d" % i["number"] for i in others))
     return None
 
@@ -211,8 +258,17 @@ def cmd_board(args, compact=False):
     branch = current_branch()
     issues = story_issues("all")
     prs = gh_api("repos/%s/pulls?state=open&per_page=50" % repo) or []
+    remote = remote_story_branches()
+    pr_for = {}
+    for p in prs:
+        _, n = branch_issue(p["head"]["ref"])
+        if n:
+            pr_for[n] = p
+    held = [i for i in issues if i["state"] == "open" and logins(i) and i["number"] not in pr_for]
     with ThreadPoolExecutor(max_workers=6) as pool:
         states = dict(zip([p["number"] for p in prs], pool.map(pr_state, prs)))
+        idle = dict(zip([i["number"] for i in held], pool.map(lambda i: idle_days(i, remote), held)))
+    stale = {n: d for n, d in idle.items() if d is not None and d >= STALE_DAYS}
 
     open_ = sorted([i for i in issues if i["state"] == "open"], key=order_key)
     closed = [i for i in issues if i["state"] == "closed"]
@@ -220,11 +276,6 @@ def cmd_board(args, compact=False):
     ready = [i for i in open_ if not logins(i) and BLOCKED_LABEL not in labels(i)]
     blocked = [i for i in open_ if not logins(i) and BLOCKED_LABEL in labels(i)]
     others = [i for i in open_ if logins(i) and user not in logins(i)]
-    pr_for = {}
-    for p in prs:
-        _, n = branch_issue(p["head"]["ref"])
-        if n:
-            pr_for[n] = p
 
     def pr_text(p):
         s = states[p["number"]]
@@ -238,6 +289,10 @@ def cmd_board(args, compact=False):
         t = "#%d %s" % (i["number"], i["title"])
         if i["number"] in pr_for:
             t += " → " + pr_text(pr_for[i["number"]])
+        if logins(i) and BLOCKED_LABEL in labels(i):
+            t += "  [blocked]"
+        if i["number"] in stale:
+            t += "  ⚠ %d 天沒有進度（沒有 PR、沒有推新 commit）" % int(stale[i["number"]])
         return t
 
     dirty = [l for l in (git("status", "--porcelain", "--untracked-files=no") or "").splitlines() if l.strip()]
@@ -273,7 +328,10 @@ def cmd_board(args, compact=False):
         nxt = "Backlog 還是空的：PO 用 /publish-stories 把 story 開成 issue。"
     elif mine:
         i = mine[0]
-        if i["number"] in pr_for:
+        if i["number"] not in pr_for and (BLOCKED_LABEL in labels(i) or i["number"] in stale):
+            why = "標了 blocked" if BLOCKED_LABEL in labels(i) else "已 %d 天沒有進度" % int(stale[i["number"]])
+            nxt = "#%d %s。還能做就推一個 commit 或在群組說明；做不下去就用 /unclaim-story 退回 backlog（寫原因），再拿下一張。" % (i["number"], why)
+        elif i["number"] in pr_for:
             nxt = "等 PR #%d 的 review 與 CI；有人要求修改就在同一個 branch 修。" % pr_for[i["number"]]["number"]
         elif bn == i["number"]:
             path = story_path_of(i)
@@ -285,6 +343,8 @@ def cmd_board(args, compact=False):
         nxt = "用 /claim-story 認領 #%d。" % ready[0]["number"]
     else:
         nxt = "目前沒有可以拿的卡：幫忙 review，或問 PO 下一步。"
+    if stale and any(n not in [i["number"] for i in mine] for n in stale):
+        nxt += "（⚠ 的卡請流程負責人在每日同步時確認：持卡人自己退，或 PO 決定。）"
     if bn and not any(i["number"] == bn for i in mine) and branch_issue(branch)[0] in STORY_BRANCH_TYPES:
         nxt = "注意：目前 branch %s 對應的 #%d 不在你手上。%s" % (branch, bn, nxt)
     out("下一步：" + nxt)
@@ -325,7 +385,7 @@ def cmd_claim(args):
         out("FAIL：沒有可以拿的 story。")
         return 1
     if any(i["number"] != target for i in held):
-        out("FAIL：你手上已經有 %s，每人同時最多 1 張。" % "、".join("#%d" % i["number"] for i in held if i["number"] != target))
+        out("FAIL：你手上已經有 %s，每人同時最多 1 張。做不下去就先用 /unclaim-story 退回 backlog。" % "、".join("#%d" % i["number"] for i in held if i["number"] != target))
         return 1
     issue = gh_api("repos/%s/issues/%d" % (repo, target))
     if issue["state"] != "open" or STORY_LABEL not in labels(issue):
@@ -357,10 +417,16 @@ def cmd_claim(args):
         slug = re.sub(r"^story-\d+-?", "", Path(path).stem)
     slug = slugify(slug) or slugify(re.sub(r"^\s*S\d+\s*", "", issue["title"])) or "story"
     branch = "feat/%d-%s" % (target, slug)
-    existing = [b for b in (git("branch", "--format=%(refname:short)") or "").split() if branch_issue(b)[1] == target]
+    existing = local_branches_for(target)
+    pushed = remote_story_branches().get(target)
     if existing:
         p = run(["git", "switch", existing[0]])
         branch = existing[0]
+    elif pushed:
+        # Someone gave this story back after pushing work: continue from it.
+        branch = pushed[0]
+        run(["git", "fetch", "origin", "+refs/heads/%s:refs/remotes/origin/%s" % (branch, branch)], timeout=60)
+        p = run(["git", "switch", "-c", branch, "origin/" + branch])
     else:
         run(["git", "fetch", "origin", "main"], timeout=60)
         p = run(["git", "switch", "-c", branch, "origin/main"])
@@ -368,10 +434,110 @@ def cmd_claim(args):
         out("FAIL：已認領 #%d，但切 branch 失敗：%s" % (target, (p.stderr if p else "").strip()))
         return 1
     out("OK：已認領 #%d %s，現在在 branch %s" % (target, issue["title"], branch))
+    if pushed and not existing:
+        out("接手：origin 上已有 %s，已從那裡接著做。先看 issue 上 /unclaim-story 留下的原因。" % branch)
     out("story 檔：%s" % (path or "issue 內文沒有寫 Story 路徑，請問 PO"))
     if path and not (ROOT / path).exists():
         out("注意：%s 在這個 branch 上不存在（story 檔可能還沒 merge 到 main）。" % path)
     out("下一步：/dev-story %s" % (path or ""))
+    return 0
+
+
+# ---------------------------------------------------------------------- unclaim
+
+def parse_unclaim_args(args):
+    reason, note, nums = None, [], []
+    i = 0
+    while i < len(args):
+        a = args[i]
+        if a in ("--reason", "--note") and i + 1 < len(args):
+            if a == "--reason":
+                reason = args[i + 1]
+            else:
+                note.append(args[i + 1])
+            i += 2
+            continue
+        if a.startswith("--reason="):
+            reason = a.split("=", 1)[1]
+        elif a.startswith("--note="):
+            note.append(a.split("=", 1)[1])
+        elif a.lstrip("#").isdigit():
+            nums.append(int(a.lstrip("#")))
+        i += 1
+    return reason, " ".join(note).strip(), nums
+
+
+def cmd_unclaim(args):
+    reason, note, nums = parse_unclaim_args(args)
+    if reason not in UNCLAIM_REASONS:
+        out("FAIL：要用 --reason 寫原因，只能是：%s。" % "、".join("%s（%s）" % kv for kv in UNCLAIM_REASONS.items()))
+        return 2
+    if not note:
+        out("FAIL：要用 --note 寫一句說明（卡在哪、要拆成什麼…），接手的人和 Retro 都靠它。")
+        return 2
+    repo = repo_slug()
+    user = me()
+    held = my_open_stories()
+    if nums:
+        target = nums[0]
+    elif len(held) == 1:
+        target = held[0]["number"]
+    else:
+        out("FAIL：%s，請指定編號。" % ("你手上沒有 story" if not held else "你手上有多張"))
+        return 1
+    issue = gh_api("repos/%s/issues/%d" % (repo, target))
+    if issue["state"] != "open" or STORY_LABEL not in labels(issue):
+        out("FAIL：#%d 不是開著的 story issue。" % target)
+        return 1
+    if user not in logins(issue):
+        out("FAIL：#%d 不在你手上，只能退自己認領的卡（別人的卡請在每日同步時問持卡人，或由 PO 決定）。" % target)
+        return 1
+    prs = [p for p in gh_api("repos/%s/pulls?state=open&per_page=50" % repo) or [] if branch_issue(p["head"]["ref"])[1] == target]
+    if prs:
+        out("FAIL：#%d 已經有 PR #%d。要退卡先關掉那個 PR（或把它做完 merge），避免留下沒人管的 PR。" % (target, prs[0]["number"]))
+        return 1
+    dirty = [l for l in (git("status", "--porcelain", "--untracked-files=no") or "").splitlines() if l.strip()]
+    if dirty:
+        out("FAIL：還有 %d 個檔案未 commit。要留給接手的人就 commit 並 push 到 story branch；不要了就自己還原，再退卡。" % len(dirty))
+        return 1
+    remote = remote_story_branches().get(target)
+    for b in local_branches_for(target):
+        ahead = [c for c in (git("log", "--format=%H", "origin/main.." + b) or "").splitlines() if c]
+        if ahead and not (remote and remote[0] == b and remote[1] == git("rev-parse", b)):
+            out("FAIL：branch %s 有 %d 個 commit 還沒推上去。先 `git push -u origin %s`，接手的人才拿得到；"
+                "確定不要這些 commit，就自己刪掉本機 branch 再退卡。" % (b, len(ahead), b))
+            return 1
+
+    lines = [UNCLAIM_MARK,
+             "**@%s 放棄認領，退回 backlog**（`/unclaim-story`）" % user,
+             "",
+             "- 原因：%s" % UNCLAIM_REASONS[reason],
+             "- 說明：%s" % note]
+    if remote:
+        lines.append("- 進度：已推到 `%s`，下一位用 `/claim-story` 認領會從這個 branch 接著做" % remote[0])
+    else:
+        lines.append("- 進度：沒有推上去的 commit，下一位從 main 重新開始")
+    order = re.match(r"\s*(S\d+)", issue["title"])
+    lines.append("- 排序不變，仍是 %s" % (order.group(1) if order else "原本的位置"))
+    if reason == "blocked":
+        lines.append("- 已加 `blocked` label；前置解決後請 PO 拿掉，才會回到「可以拿」")
+    if reason in ("too-big", "priority"):
+        lines.append("- 請 PO 決定：拆成較小的 story、調整排序，或延到下個 sprint")
+    gh_api("repos/%s/issues/%d/comments" % (repo, target), "POST", {"body": "\n".join(lines)})
+    if reason == "blocked" and BLOCKED_LABEL not in labels(issue):
+        gh_api("repos/%s/issues/%d/labels" % (repo, target), "POST", {"labels": [BLOCKED_LABEL]})
+    gh_api("repos/%s/issues/%d/assignees" % (repo, target), "DELETE", {"assignees": [user]})
+    issue = gh_api("repos/%s/issues/%d" % (repo, target))
+    if user in logins(issue):
+        out("FAIL：已在 #%d 留言，但取消 assign 沒有成功，請到 issue 頁面手動取消。" % target)
+        return 1
+    out("OK：已把 #%d %s 退回 backlog（原因：%s）。" % (target, issue["title"], UNCLAIM_REASONS[reason]))
+    if branch_issue(current_branch())[1] == target:
+        p = run(["git", "switch", "main"])
+        out("已切回 main。" if p is not None and p.returncode == 0 else "注意：切回 main 失敗，請自己 `git switch main`。")
+    if reason in ("too-big", "priority"):
+        out("請告訴 PO：這張需要拆或重新排序。")
+    out("下一步：/board 看下一張可以拿的卡。")
     return 0
 
 
@@ -998,6 +1164,7 @@ COMMANDS = {
     "board": cmd_board,
     "session-start": cmd_session_start,
     "claim": cmd_claim,
+    "unclaim": cmd_unclaim,
     "preflight": cmd_preflight,
     "publish": cmd_publish,
     "hook-pretool": cmd_hook_pretool,
